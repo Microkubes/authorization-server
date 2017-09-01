@@ -137,3 +137,21 @@ func NewMockOAuth2Provider(clients []*oauth2.Client) *oauth2.OAuth2Provider {
 		AccessTokenValidityPeriod: 3600 * 1000,
 	}
 }
+
+type MockUser struct {
+	oauth2.User
+	Password string
+}
+
+type DummyUserService struct {
+	Users map[string]*MockUser
+}
+
+func (d *DummyUserService) VerifyUser(username, password string) (*oauth2.User, error) {
+	if user, ok := d.Users[username]; ok {
+		if user.Password == password {
+			return &user.User, nil
+		}
+	}
+	return nil, nil
+}

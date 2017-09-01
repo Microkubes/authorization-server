@@ -119,6 +119,15 @@ definitions:
 info:
   version: ""
 paths:
+  /login:
+    get:
+      operationId: public#/login
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      summary: Download public/login/login-form.html
   /oauth2/authorize:
     get:
       description: Authorize OAuth2 client

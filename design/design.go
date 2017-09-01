@@ -10,3 +10,10 @@ var OAuth2Sec = OAuth2("/oauth2/authorize", "/oauth2/token", func() {
 	Scope("api:read")
 	Scope("api:write")
 })
+
+var _ = Resource("public", func() {
+	Origin("*", func() {
+		Methods("GET")
+	})
+	Files("/login", "public/login/login-form.html")
+})

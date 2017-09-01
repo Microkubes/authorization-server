@@ -1,7 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+
 	"github.com/JormungandrK/authorization-server/app"
+	"github.com/JormungandrK/microservice-security/auth"
+	oa2 "github.com/JormungandrK/microservice-security/oauth2"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/oauth2"
 )
@@ -10,13 +16,15 @@ import (
 type Oauth2ProviderController struct {
 	*goa.Controller
 	*oauth2.ProviderController
+	oa2.ClientService
 }
 
 // NewOauth2ProviderController creates a oauth2_provider controller.
-func NewOauth2ProviderController(service *goa.Service, provider oauth2.Provider) *Oauth2ProviderController {
+func NewOauth2ProviderController(service *goa.Service, provider oauth2.Provider, clientService oa2.ClientService) *Oauth2ProviderController {
 	return &Oauth2ProviderController{
 		Controller:         service.NewController("Oauth2ProviderController"),
 		ProviderController: oauth2.NewProviderController(service, provider),
+		ClientService:      clientService,
 	}
 }
 
@@ -24,8 +32,32 @@ func NewOauth2ProviderController(service *goa.Service, provider oauth2.Provider)
 func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderContext) error {
 	// Oauth2ProviderController_Authorize: start_implement
 
-	return c.ProviderController.Authorize(ctx, ctx.ResponseWriter, ctx.Request)
+	authObj := auth.GetAuth(ctx.Context)
+	if authObj == nil {
+		return ctx.BadRequest(&app.OAuth2ErrorMedia{
+			Error: "Authentication is required",
+		})
+	}
 
+	err := c.ProviderController.Authorize(ctx, ctx.ResponseWriter, ctx.Request)
+	if err != nil {
+		return err
+	}
+
+	redirectURL := ctx.ResponseWriter.Header().Get("Location")
+	fmt.Printf("Redirect URL -> %s\n", redirectURL)
+	u, err := url.Parse(redirectURL)
+	if err != nil {
+		return err
+	}
+	code := u.Query().Get("code")
+	userData, err := json.Marshal(authObj)
+	if err != nil {
+		return err
+	}
+	err = c.ClientService.UpdateUserData(ctx.ClientID, code, string(userData))
+
+	return err
 	// Oauth2ProviderController_Authorize: end_implement
 	//return nil
 }
