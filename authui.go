@@ -50,6 +50,7 @@ func (c *AuthUIController) ConfirmAuthorization(ctx *app.ConfirmAuthorizationAut
 		}
 
 		// Go back to the original authorization URL
+		fmt.Println("CONFIRM -> AUTH_REQ -> ", confirmation.AuthorizeRequest)
 		ctx.ResponseWriter.Header().Set("Location", confirmation.AuthorizeRequest)
 		ctx.ResponseWriter.WriteHeader(302)
 		return nil

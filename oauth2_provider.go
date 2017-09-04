@@ -54,7 +54,7 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 
 	if !confirmation.Confirmed {
 		confirmation.ClientID = ctx.ClientID
-		confirmation.AuthorizeRequest = fmt.Sprintf("%s?%s", ctx.Request.URL.Path, ctx.Request.URL.Query())
+		confirmation.AuthorizeRequest = fmt.Sprintf("%s?%s", ctx.Request.URL.Path, ctx.Request.URL.Query().Encode())
 		c.SessionStore.SetValue("confirmation", confirmation, ctx.ResponseWriter, ctx.Request)
 		fmt.Println("Not authorized. Prompt client...")
 		//redirect to confirmation URL

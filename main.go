@@ -65,7 +65,7 @@ func main() {
 			Secret:      "super-secret-stuff",
 		},
 	})
-	c := NewOauth2ProviderController(service, provider, provider.ClientService, provider.TokenService, sessionStore, "/auth/confirm-authorization")
+	c := NewOauth2ProviderController(service, provider, provider.ClientService, provider.TokenService, sessionStore, "/auth/authorize-client")
 	app.MountOauth2ProviderController(service, c)
 
 	publicController := NewPublicController(service)
