@@ -9,15 +9,25 @@ import (
 	"github.com/JormungandrK/microservice-security/oauth2"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
+	"github.com/gorilla/securecookie"
+	"github.com/gorilla/sessions"
 )
 
 func main() {
 	// Create service
 	service := goa.New("")
 
+	sessionStore := &security.SecureSessionStore{
+		SessionName: "OAuth2AuthorizationServer",
+		Store:       sessions.NewCookieStore([]byte("super-secret-extra-safe"), securecookie.GenerateRandomKey(256)),
+	}
+
+	oauth2Scheme := app.NewOAuth2Security()
+
 	formLoginMiddleware := security.FormLoginMiddleware(&security.FormLoginScheme{
 		PostURL:       "/check_credentials",
 		LoginURL:      "/login",
+		ConfirmURL:    "/auth/authorize-client",
 		UsernameField: "username",
 		PasswordField: "password",
 		CookieSecret:  []byte("secret-key"),
@@ -35,13 +45,14 @@ func main() {
 				Password: "pass",
 			},
 		},
-	})
+	}, sessionStore)
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
 	service.Use(middleware.LogRequest(true))
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
+	service.Use(security.NewStoreOAuth2ParamsMiddleware(sessionStore, oauth2Scheme.AuthorizationURL))
 	service.Use(formLoginMiddleware)
 
 	// Mount "oauth2_provider" controller

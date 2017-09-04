@@ -27,6 +27,18 @@ import (
 )
 
 type (
+	// ConfirmAuthorizationAuthuiCommand is the command line data structure for the confirmAuthorization action of authUI
+	ConfirmAuthorizationAuthuiCommand struct {
+		// Is the authorization confirmed.
+		Confirmed   string
+		PrettyPrint bool
+	}
+
+	// PromptAuthorizationAuthuiCommand is the command line data structure for the promptAuthorization action of authUI
+	PromptAuthorizationAuthuiCommand struct {
+		PrettyPrint bool
+	}
+
 	// AuthorizeOauth2ProviderCommand is the command line data structure for the authorize action of oauth2_provider
 	AuthorizeOauth2ProviderCommand struct {
 		// The client identifier
@@ -74,10 +86,24 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "confirm-authorization",
+		Short: `Confirm the authorization of the client`,
+	}
+	tmp2 := new(ConfirmAuthorizationAuthuiCommand)
+	sub = &cobra.Command{
+		Use:   `authui ["/auth/confirm-authorization"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+	}
+	tmp2.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "get-token",
 		Short: `Get access token from authorization code or refresh token`,
 	}
-	tmp2 := new(GetTokenOauth2ProviderCommand)
+	tmp3 := new(GetTokenOauth2ProviderCommand)
 	sub = &cobra.Command{
 		Use:   `oauth2-provider ["/oauth2/token"]`,
 		Short: `This resource implements the OAuth2 authorization code flow`,
@@ -92,10 +118,24 @@ Payload example:
    "refresh_token": "Et qui quia sed odio sint.",
    "scope": "Iste laborum nostrum quidem sequi dolor."
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
-	tmp2.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp3.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "prompt-authorization",
+		Short: `Prompt the user for client authorization`,
+	}
+	tmp4 := new(PromptAuthorizationAuthuiCommand)
+	sub = &cobra.Command{
+		Use:   `authui ["/auth/authorize-client"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+	}
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -301,6 +341,65 @@ found:
 	}
 
 	return nil
+}
+
+// Run makes the HTTP request corresponding to the ConfirmAuthorizationAuthuiCommand command.
+func (cmd *ConfirmAuthorizationAuthuiCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/auth/confirm-authorization"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	var tmp5 *bool
+	if cmd.Confirmed != "" {
+		var err error
+		tmp5, err = boolVal(cmd.Confirmed)
+		if err != nil {
+			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--confirmed", "err", err)
+			return err
+		}
+	}
+	resp, err := c.ConfirmAuthorizationAuthUI(ctx, path, tmp5)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ConfirmAuthorizationAuthuiCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var confirmed string
+	cc.Flags().StringVar(&cmd.Confirmed, "confirmed", confirmed, `Is the authorization confirmed.`)
+}
+
+// Run makes the HTTP request corresponding to the PromptAuthorizationAuthuiCommand command.
+func (cmd *PromptAuthorizationAuthuiCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/auth/authorize-client"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.PromptAuthorizationAuthUI(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *PromptAuthorizationAuthuiCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 }
 
 // Run makes the HTTP request corresponding to the AuthorizeOauth2ProviderCommand command.

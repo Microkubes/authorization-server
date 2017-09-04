@@ -116,9 +116,90 @@ definitions:
     - grant_type
     title: TokenPayload
     type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
 info:
   version: ""
 paths:
+  /auth/authorize-client:
+    get:
+      description: Prompt the user for client authorization
+      operationId: authUI#promptAuthorization
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      summary: promptAuthorization authUI
+      tags:
+      - authUI
+  /auth/confirm-authorization:
+    post:
+      description: Confirm the authorization of the client
+      operationId: authUI#confirmAuthorization
+      parameters:
+      - description: Is the authorization confirmed.
+        in: query
+        name: confirmed
+        required: false
+        type: boolean
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      summary: confirmAuthorization authUI
+      tags:
+      - authUI
   /login:
     get:
       operationId: public#/login

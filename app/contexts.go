@@ -14,7 +14,81 @@ import (
 	"context"
 	"github.com/goadesign/goa"
 	"net/http"
+	"strconv"
 )
+
+// ConfirmAuthorizationAuthUIContext provides the authUI confirmAuthorization action context.
+type ConfirmAuthorizationAuthUIContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Confirmed *bool
+}
+
+// NewConfirmAuthorizationAuthUIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the authUI controller confirmAuthorization action.
+func NewConfirmAuthorizationAuthUIContext(ctx context.Context, r *http.Request, service *goa.Service) (*ConfirmAuthorizationAuthUIContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ConfirmAuthorizationAuthUIContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramConfirmed := req.Params["confirmed"]
+	if len(paramConfirmed) > 0 {
+		rawConfirmed := paramConfirmed[0]
+		if confirmed, err2 := strconv.ParseBool(rawConfirmed); err2 == nil {
+			tmp1 := &confirmed
+			rctx.Confirmed = tmp1
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("confirmed", rawConfirmed, "boolean"))
+		}
+	}
+	return &rctx, err
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ConfirmAuthorizationAuthUIContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ConfirmAuthorizationAuthUIContext) InternalServerError(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// PromptAuthorizationAuthUIContext provides the authUI promptAuthorization action context.
+type PromptAuthorizationAuthUIContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewPromptAuthorizationAuthUIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the authUI controller promptAuthorization action.
+func NewPromptAuthorizationAuthUIContext(ctx context.Context, r *http.Request, service *goa.Service) (*PromptAuthorizationAuthUIContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := PromptAuthorizationAuthUIContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *PromptAuthorizationAuthUIContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *PromptAuthorizationAuthUIContext) InternalServerError(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
 
 // AuthorizeOauth2ProviderContext provides the oauth2_provider authorize action context.
 type AuthorizeOauth2ProviderContext struct {

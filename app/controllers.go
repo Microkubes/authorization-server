@@ -32,6 +32,49 @@ func initService(service *goa.Service) {
 	service.Decoder.Register(goa.NewJSONDecoder, "*/*")
 }
 
+// AuthUIController is the controller interface for the AuthUI actions.
+type AuthUIController interface {
+	goa.Muxer
+	ConfirmAuthorization(*ConfirmAuthorizationAuthUIContext) error
+	PromptAuthorization(*PromptAuthorizationAuthUIContext) error
+}
+
+// MountAuthUIController "mounts" a AuthUI resource controller on the given service.
+func MountAuthUIController(service *goa.Service, ctrl AuthUIController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewConfirmAuthorizationAuthUIContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ConfirmAuthorization(rctx)
+	}
+	service.Mux.Handle("POST", "/auth/confirm-authorization", ctrl.MuxHandler("confirmAuthorization", h, nil))
+	service.LogInfo("mount", "ctrl", "AuthUI", "action", "ConfirmAuthorization", "route", "POST /auth/confirm-authorization")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewPromptAuthorizationAuthUIContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.PromptAuthorization(rctx)
+	}
+	service.Mux.Handle("GET", "/auth/authorize-client", ctrl.MuxHandler("promptAuthorization", h, nil))
+	service.LogInfo("mount", "ctrl", "AuthUI", "action", "PromptAuthorization", "route", "GET /auth/authorize-client")
+}
+
 // Oauth2ProviderController is the controller interface for the Oauth2Provider actions.
 type Oauth2ProviderController interface {
 	goa.Muxer
@@ -130,7 +173,7 @@ func handlePublicOrigin(h goa.Handler) goa.Handler {
 			rw.Header().Set("Access-Control-Allow-Credentials", "false")
 			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
 				// We are handling a preflight request
-				rw.Header().Set("Access-Control-Allow-Methods", "GET")
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST")
 			}
 			return h(ctx, rw, req)
 		}

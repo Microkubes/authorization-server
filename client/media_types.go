@@ -15,6 +15,13 @@ import (
 	"net/http"
 )
 
+// DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.
+func (c *Client) DecodeErrorResponse(resp *http.Response) (*goa.ErrorResponse, error) {
+	var decoded goa.ErrorResponse
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // OAuth2 error response, see https://tools.ietf.org/html/rfc6749#section-5.2 (default view)
 //
 // Identifier: application/vnd.goa.example.oauth2.error+json; view=default

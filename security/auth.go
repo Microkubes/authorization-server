@@ -17,6 +17,7 @@ import (
 type FormLoginScheme struct {
 	PostURL       string
 	LoginURL      string
+	ConfirmURL    string
 	UsernameField string
 	PasswordField string
 	CookieSecret  []byte
@@ -31,7 +32,7 @@ var Unauthorized = goa.NewErrorClass("unauthorized", 401)
 var Forbidden = goa.NewErrorClass("forbidden", 403)
 var ServerError = goa.NewErrorClass("server_error", 500)
 
-func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService) goa.Middleware {
+func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService, sStore SessionStore) goa.Middleware {
 	sessionStore := sessions.NewCookieStore(scheme.CookieSecret)
 	fmt.Printf("Session store created")
 	return func(h goa.Handler) goa.Handler {
@@ -44,20 +45,10 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 			}
 			authObj := getAuth(sessionStore, req)
 			if authObj != nil {
-				fmt.Println("Auth object in session")
-				// check redirect
-				if redirect := getRedirectURL(sessionStore, req); redirect != "" {
-					fmt.Printf("Redirect URL: %s\n", redirect)
-					clearRedirectURL(sessionStore, req, rw)
-					rw.Header().Add("Location", redirect)
-					rw.WriteHeader(302)
-
-					return nil
-				}
-				fmt.Println("Proceeding with flow")
-				// proceed with flow otherwise
-				ctx = auth.SetAuth(ctx, authObj)
-				return h(ctx, rw, req)
+				fmt.Println("Auth object in session, redirecting to Confirm URL -> ", scheme.ConfirmURL)
+				rw.Header().Add("Location", scheme.ConfirmURL)
+				rw.WriteHeader(302)
+				return nil
 			}
 			// No auth, attempt creating new one
 			fmt.Println("Attempting form login")
@@ -69,18 +60,10 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 				fmt.Println("Auth created")
 				// auth has been successful
 				setAuth(auth.GetAuth(ctx), sessionStore, req, rw)
-				// check redirect
-				if redirect := getRedirectURL(sessionStore, req); redirect != "" {
-					fmt.Printf("Redirect URL: %s\n", redirect)
-					clearRedirectURL(sessionStore, req, rw)
-					rw.Header().Add("Location", redirect)
-					rw.WriteHeader(302)
-
-					return nil
-				}
-				fmt.Println("No redirect, proceeding with flow.")
-				// if no redirect, proceed with flow
-				return h(ctx, rw, req)
+				fmt.Println("Redirecting to ConfirmURL -> ", scheme.ConfirmURL)
+				rw.Header().Add("Location", scheme.ConfirmURL)
+				rw.WriteHeader(302)
+				return nil
 			}
 			// auth has not been set, store the Request URL for next redirect and redirect to login
 			redirect := fmt.Sprintf("%s?%s", req.URL.Path, req.URL.Query().Encode())
@@ -191,4 +174,19 @@ func attemptFormLogin(ctx context.Context, scheme *FormLoginScheme, userService 
 		return ctx, nil
 	}
 	return ctx, nil
+}
+
+func NewStoreOAuth2ParamsMiddleware(sessionStore SessionStore, authorizeURL string) goa.Middleware {
+	return func(h goa.Handler) goa.Handler {
+		return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+			if req.URL.Path == authorizeURL {
+				clientID := req.URL.Query().Get("client_id")
+				if clientID != "" {
+					sessionStore.Set("clientId", clientID, rw, req)
+					println("Client ID set -> ", clientID)
+				}
+			}
+			return h(ctx, rw, req)
+		}
+	}
 }
