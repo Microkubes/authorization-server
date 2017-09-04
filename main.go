@@ -19,7 +19,7 @@ func main() {
 
 	sessionStore := &security.SecureSessionStore{
 		SessionName: "OAuth2AuthorizationServer",
-		Store:       sessions.NewCookieStore([]byte("super-secret-extra-safe"), securecookie.GenerateRandomKey(256)),
+		Store:       sessions.NewCookieStore([]byte("super-secret-extra-safe"), securecookie.GenerateRandomKey(32)),
 	}
 
 	oauth2Scheme := app.NewOAuth2Security()
@@ -65,12 +65,14 @@ func main() {
 			Secret:      "super-secret-stuff",
 		},
 	})
-	c := NewOauth2ProviderController(service, provider, provider.ClientService)
+	c := NewOauth2ProviderController(service, provider, provider.ClientService, provider.TokenService, sessionStore)
 	app.MountOauth2ProviderController(service, c)
 
 	publicController := NewPublicController(service)
-
 	app.MountPublicController(service, publicController)
+
+	authuiCtrl := NewAuthUIController(service, sessionStore, provider.ClientService)
+	app.MountAuthUIController(service, authuiCtrl)
 
 	// Start service
 	if err := service.ListenAndServe(":8080"); err != nil {

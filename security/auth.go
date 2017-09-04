@@ -45,10 +45,15 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 			}
 			authObj := getAuth(sessionStore, req)
 			if authObj != nil {
-				fmt.Println("Auth object in session, redirecting to Confirm URL -> ", scheme.ConfirmURL)
-				rw.Header().Add("Location", scheme.ConfirmURL)
-				rw.WriteHeader(302)
-				return nil
+				ctx = auth.SetAuth(ctx, authObj)
+				if redirect := getRedirectURL(sessionStore, req); redirect != "" {
+					clearRedirectURL(sessionStore, req, rw)
+					rw.Header().Add("Location", redirect)
+					rw.WriteHeader(302)
+					return nil
+				}
+				fmt.Println("Passing through (1)")
+				return h(ctx, rw, req)
 			}
 			// No auth, attempt creating new one
 			fmt.Println("Attempting form login")
@@ -60,10 +65,14 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 				fmt.Println("Auth created")
 				// auth has been successful
 				setAuth(auth.GetAuth(ctx), sessionStore, req, rw)
-				fmt.Println("Redirecting to ConfirmURL -> ", scheme.ConfirmURL)
-				rw.Header().Add("Location", scheme.ConfirmURL)
-				rw.WriteHeader(302)
-				return nil
+				if redirect := getRedirectURL(sessionStore, req); redirect != "" {
+					clearRedirectURL(sessionStore, req, rw)
+					rw.Header().Add("Location", redirect)
+					rw.WriteHeader(302)
+					return nil
+				}
+				fmt.Println("Passing through (2)")
+				return h(ctx, rw, req)
 			}
 			// auth has not been set, store the Request URL for next redirect and redirect to login
 			redirect := fmt.Sprintf("%s?%s", req.URL.Path, req.URL.Query().Encode())

@@ -1,10 +1,12 @@
 <html>
 
 <body>
-  Application <a href="{{client.Website}}">{{client.Name}}</a> would like to access your resources.
+  Application <a href="{{.client.Website}}">{{.client.Name}}</a> would like to access your resources.
   <p>
+  <form action="/auth/confirm-authorization?confirmed=true" method="post">
   Authorize this app?
-  <a href="/auth/confirm-authorization?confirmed=true">Yes</a>
+  <input type="submit" value="Yes" />
+  </form>
   <a href="/auth/confirm-authorization?confirmed=false">No, take me out of here</a>
 </body>
 </html>

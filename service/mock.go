@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
+	"strings"
 
 	"github.com/JormungandrK/microservice-security/oauth2"
 )
@@ -45,13 +46,34 @@ func (d *DummyClientService) GetClientAuth(clientID, code string) (*oauth2.Clien
 	return ca, nil
 }
 
-func (d *DummyClientService) UpdateUserData(clientID, code, userData string) error {
+func (d *DummyClientService) GetClientAuthForUser(userID, clientID string) (*oauth2.ClientAuth, error) {
+	for key, ca := range d.Auths {
+		if strings.HasPrefix(key, clientID) {
+			if ca.UserID == userID {
+				return ca, nil
+			}
+		}
+	}
+	return nil, nil
+}
+
+func (d *DummyClientService) ConfirmClientAuth(userID, clientID string) (*oauth2.ClientAuth, error) {
+	ca, _ := d.GetClientAuthForUser(userID, clientID)
+	if ca != nil {
+		ca.Confirmed = true
+		return ca, nil
+	}
+	return nil, nil
+}
+
+func (d *DummyClientService) UpdateUserData(clientID, code, userID, userData string) error {
 	key := fmt.Sprintf("%s-%s", clientID, code)
 	ca, ok := d.Auths[key]
 	if !ok {
 		return fmt.Errorf("No such authentication")
 	}
 	ca.UserData = userData
+	ca.UserID = userID
 	return nil
 }
 
@@ -84,6 +106,10 @@ func (d *DummyTokenService) GetToken(refreshToken string) (*oauth2.OAuth2Token, 
 	if token, ok := d.Tokens[refreshToken]; ok {
 		return token, nil
 	}
+	return nil, nil
+}
+
+func (d *DummyTokenService) GetTokenForClient(userID, clientID string) (*oauth2.OAuth2Token, error) {
 	return nil, nil
 }
 
