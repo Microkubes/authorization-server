@@ -33,55 +33,34 @@ func NewAuthUIController(service *goa.Service, sessionStore security.SessionStor
 func (c *AuthUIController) ConfirmAuthorization(ctx *app.ConfirmAuthorizationAuthUIContext) error {
 
 	authObj := auth.GetAuth(ctx.Context)
-	clientID, err := c.SessionStore.Get("clientId", ctx.Request)
-	if err != nil {
-		return ctx.InternalServerError(err)
-	}
-	if clientID == nil {
-		fmt.Println("No client ID")
-		return ctx.BadRequest(fmt.Errorf("Invalid client id"))
-	}
 
-	// clientAuth, err := c.ClientService.GetClientAuthForUser(authObj.UserID, *clientID)
-	// if err != nil {
-	// 	return ctx.InternalServerError(err)
-	// }
-	// if clientAuth == nil {
-	// 	fmt.Println("No client auth")
-	// 	return ctx.BadRequest(fmt.Errorf("invalid client auth"))
-	// }
+	confirmation := security.AuthorizeClientData{}
+
+	err := c.SessionStore.GetAs("confirmation", &confirmation, ctx.Request)
+	if err != nil {
+		return ctx.BadRequest(fmt.Errorf("invalid-parameters"))
+	}
 
 	if ctx.Confirmed != nil && *ctx.Confirmed {
-		backToAuthorize, e := c.SessionStore.Get("orig_authorize", ctx.Request)
-		if e != nil {
-			return ctx.InternalServerError(err)
-		}
-		if backToAuthorize == nil {
-			fmt.Println("Invalid callback")
-			return ctx.BadRequest(fmt.Errorf("invalid-authorize-callback"))
-		}
-		c.SessionStore.Set("auth_confirmed", "true", ctx.ResponseWriter, ctx.Request)
-		_, e = c.ClientService.ConfirmClientAuth(authObj.UserID, *clientID)
-		if e != nil {
+		confirmation.Confirmed = true
+		c.SessionStore.SetValue("confirmation", confirmation, ctx.ResponseWriter, ctx.Request)
+		_, err = c.ClientService.ConfirmClientAuth(authObj.UserID, confirmation.ClientID)
+		if err != nil {
 			return ctx.InternalServerError(err)
 		}
 
-		// TODO: clear the session here
-		c.SessionStore.Clear("clientId", ctx.ResponseWriter, ctx.Request)
-		c.SessionStore.Clear("orig_authorize", ctx.ResponseWriter, ctx.Request)
-		// redirect to the client website?
-		ctx.ResponseWriter.Header().Set("Location", *backToAuthorize)
+		// Go back to the original authorization URL
+		ctx.ResponseWriter.Header().Set("Location", confirmation.AuthorizeRequest)
 		ctx.ResponseWriter.WriteHeader(302)
 		return nil
 	}
 
-	client, err := c.ClientService.GetClient(*clientID)
+	client, err := c.ClientService.GetClient(confirmation.ClientID)
 	if err != nil {
 		return ctx.InternalServerError(err)
 	}
-	// TODO: clear the session here
-	c.SessionStore.Clear("clientId", ctx.ResponseWriter, ctx.Request)
-	c.SessionStore.Clear("orig_authorize", ctx.ResponseWriter, ctx.Request)
+	// clear the session here
+	c.SessionStore.Clear("confirmation", ctx.ResponseWriter, ctx.Request)
 	// redirect to the client website?
 	ctx.ResponseWriter.Header().Set("Location", client.Website)
 	ctx.ResponseWriter.WriteHeader(302)

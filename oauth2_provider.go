@@ -20,16 +20,19 @@ type Oauth2ProviderController struct {
 	oa2.ClientService
 	oa2.TokenService
 	security.SessionStore
+	ConfirmAuthorizationURL string
 }
 
 // NewOauth2ProviderController creates a oauth2_provider controller.
-func NewOauth2ProviderController(service *goa.Service, provider oauth2.Provider, clientService oa2.ClientService, tokenService oa2.TokenService, sessionStore security.SessionStore) *Oauth2ProviderController {
+func NewOauth2ProviderController(service *goa.Service, provider oauth2.Provider, clientService oa2.ClientService,
+	tokenService oa2.TokenService, sessionStore security.SessionStore, confirmAuthURL string) *Oauth2ProviderController {
 	return &Oauth2ProviderController{
-		Controller:         service.NewController("Oauth2ProviderController"),
-		ProviderController: oauth2.NewProviderController(service, provider),
-		ClientService:      clientService,
-		TokenService:       tokenService,
-		SessionStore:       sessionStore,
+		Controller:              service.NewController("Oauth2ProviderController"),
+		ProviderController:      oauth2.NewProviderController(service, provider),
+		ClientService:           clientService,
+		TokenService:            tokenService,
+		SessionStore:            sessionStore,
+		ConfirmAuthorizationURL: confirmAuthURL,
 	}
 }
 
@@ -45,30 +48,18 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 		})
 	}
 	fmt.Println("Checking client authorization...")
-	// clientAuth, err := c.ClientService.GetClientAuthForUser(authObj.UserID, ctx.ClientID)
-	// if err != nil {
-	// 	return err
-	// }
 
-	userHasConfirmed, _ := c.SessionStore.Get("auth_confirmed", ctx.Request)
-	if userHasConfirmed != nil && *userHasConfirmed != "true" {
+	confirmation := security.AuthorizeClientData{}
+	c.SessionStore.GetAs("confirmation", &confirmation, ctx.Request)
 
-		// }
-		//
-		// if clientAuth == nil || !clientAuth.Confirmed {
+	if !confirmation.Confirmed {
+		confirmation.ClientID = ctx.ClientID
+		confirmation.AuthorizeRequest = fmt.Sprintf("%s?%s", ctx.Request.URL.Path, ctx.Request.URL.Query())
+		c.SessionStore.SetValue("confirmation", confirmation, ctx.ResponseWriter, ctx.Request)
 		fmt.Println("Not authorized. Prompt client...")
 		//redirect to confirmation URL
-		rw := ctx.ResponseWriter
-		//save client id to session (encrypted)
-		authorizeOrigURL := fmt.Sprintf("%s?%s", ctx.Request.URL.Path, ctx.Request.URL.Query())
-		c.SessionStore.Set("clientId", ctx.ClientID, rw, ctx.Request)
-		err := c.SessionStore.Set("orig_authorize", authorizeOrigURL, rw, ctx.Request)
-		if err != nil {
-			fmt.Println("Error", err)
-			return err
-		}
-		rw.Header().Set("Location", "/auth/authorize-client")
-		rw.WriteHeader(302)
+		ctx.ResponseWriter.Header().Set("Location", c.ConfirmAuthorizationURL)
+		ctx.ResponseWriter.WriteHeader(302)
 		return nil
 	}
 

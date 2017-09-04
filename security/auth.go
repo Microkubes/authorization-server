@@ -24,6 +24,12 @@ type FormLoginScheme struct {
 	IgnoreURLs    []string
 }
 
+type AuthorizeClientData struct {
+	AuthorizeRequest string
+	ClientID         string
+	Confirmed        bool
+}
+
 const AUTH_SERVER_SESSION = "OAuth2AuthServer"
 const AUTH_USER_DATA = "user"
 const AUTH_REDIRECT = "redirect"
