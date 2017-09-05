@@ -9,6 +9,7 @@ import (
 	"github.com/JormungandrK/microservice-security/oauth2"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
+	goaoauth2 "github.com/goadesign/oauth2"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 )
@@ -31,7 +32,7 @@ func main() {
 		UsernameField: "username",
 		PasswordField: "password",
 		CookieSecret:  []byte("secret-key"),
-		IgnoreURLs:    []string{"/login", "/oauth/token"},
+		IgnoreURLs:    []string{"/login", "/oauth2/token"},
 	}, &svc.DummyUserService{
 		Users: map[string]*svc.MockUser{
 			"test-user": &svc.MockUser{
@@ -65,6 +66,10 @@ func main() {
 			Secret:      "super-secret-stuff",
 		},
 	})
+
+	oauth2ClientAuth := goaoauth2.NewOAuth2ClientBasicAuthMiddleware(provider)
+	app.UseOauth2ClientBasicAuthMiddleware(service, oauth2ClientAuth)
+
 	c := NewOauth2ProviderController(service, provider, provider.ClientService, provider.TokenService, sessionStore, "/auth/authorize-client")
 	app.MountOauth2ProviderController(service, c)
 

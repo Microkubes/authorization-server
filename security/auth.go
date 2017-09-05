@@ -1,7 +1,6 @@
 package security
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,7 +10,6 @@ import (
 	"github.com/JormungandrK/microservice-security/auth"
 	"github.com/JormungandrK/microservice-security/oauth2"
 	"github.com/goadesign/goa"
-	"github.com/gorilla/sessions"
 )
 
 type FormLoginScheme struct {
@@ -38,14 +36,13 @@ var Unauthorized = goa.NewErrorClass("unauthorized", 401)
 var Forbidden = goa.NewErrorClass("forbidden", 403)
 var ServerError = goa.NewErrorClass("server_error", 500)
 
-func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService, sStore SessionStore) goa.Middleware {
-	sessionStore := sessions.NewCookieStore(scheme.CookieSecret)
+func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService, sessionStore SessionStore) goa.Middleware {
 	fmt.Printf("Session store created")
 	return func(h goa.Handler) goa.Handler {
 		return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 			for _, ignoreURL := range scheme.IgnoreURLs {
 				if req.URL.Path == ignoreURL {
-					fmt.Printf("Ignored URL: %s", req.URL.Path)
+					fmt.Printf("Ignored URL: %s\n", req.URL.Path)
 					return h(ctx, rw, req)
 				}
 			}
@@ -92,65 +89,36 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 	}
 }
 
-func getSession(store sessions.Store, req *http.Request) *sessions.Session {
-	session, err := store.Get(req, AUTH_SERVER_SESSION)
+func getAuth(store SessionStore, req *http.Request) *auth.Auth {
+	authObj := auth.Auth{}
+	err := store.GetAs(AUTH_USER_DATA, &authObj, req)
 	if err != nil {
-		fmt.Println("Error while getting session: ", err)
-	}
-	return session
-}
-
-func getAuth(store sessions.Store, req *http.Request) *auth.Auth {
-	session := getSession(store, req)
-	userData, ok := session.Values[AUTH_USER_DATA]
-	println("User data ->", userData, ok)
-	fmt.Printf("Session values: %v", session.Values)
-	if !ok {
 		return nil
 	}
-	if userData.(string) == "" {
-		return nil
-	}
-	authObj := &auth.Auth{}
-	json.Unmarshal([]byte(userData.(string)), authObj)
-	return authObj
+	return &authObj
 }
 
-func setAuth(authObj *auth.Auth, store sessions.Store, req *http.Request, rw http.ResponseWriter) error {
-	session := getSession(store, req)
-	authData, err := json.Marshal(*authObj)
-	fmt.Printf("Auth saved -> %s\n", authData)
-	if err != nil {
-		return err
-	}
-	session.Values[AUTH_USER_DATA] = string(authData)
-	return session.Save(req, rw)
+func setAuth(authObj *auth.Auth, store SessionStore, req *http.Request, rw http.ResponseWriter) error {
+	return store.SetValue(AUTH_USER_DATA, authObj, rw, req)
 }
-func clearAuth(store sessions.Store, req *http.Request, rw http.ResponseWriter) error {
-	session := getSession(store, req)
-	session.Values[AUTH_USER_DATA] = ""
-	return session.Save(req, rw)
+func clearAuth(store SessionStore, req *http.Request, rw http.ResponseWriter) error {
+	return store.Clear(AUTH_USER_DATA, rw, req)
 }
 
-func getRedirectURL(store sessions.Store, req *http.Request) string {
-	session := getSession(store, req)
-	redirect, ok := session.Values[AUTH_REDIRECT]
-	if !ok {
+func getRedirectURL(store SessionStore, req *http.Request) string {
+	redirect, err := store.Get(AUTH_REDIRECT, req)
+	if err != nil || redirect == nil {
 		return ""
 	}
-	return redirect.(string)
+	return *redirect
 }
 
-func setRedirectURL(redirect string, store sessions.Store, req *http.Request, rw http.ResponseWriter) error {
-	session := getSession(store, req)
-	session.Values[AUTH_REDIRECT] = redirect
-	return session.Save(req, rw)
+func setRedirectURL(redirect string, store SessionStore, req *http.Request, rw http.ResponseWriter) error {
+	return store.Set(AUTH_REDIRECT, redirect, rw, req)
 }
 
-func clearRedirectURL(store sessions.Store, req *http.Request, rw http.ResponseWriter) error {
-	session := getSession(store, req)
-	session.Values[AUTH_REDIRECT] = ""
-	return session.Save(req, rw)
+func clearRedirectURL(store SessionStore, req *http.Request, rw http.ResponseWriter) error {
+	return store.Clear(AUTH_REDIRECT, rw, req)
 }
 
 func getUserAuthForCredentials(username, password string, userService oauth2.UserService) (*auth.Auth, error) {
