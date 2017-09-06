@@ -3,9 +3,15 @@
 package main
 
 import (
+	"encoding/base64"
+	"net/http"
+	"os"
+
 	"github.com/JormungandrK/authorization-server/app"
+	"github.com/JormungandrK/authorization-server/config"
 	"github.com/JormungandrK/authorization-server/security"
 	svc "github.com/JormungandrK/authorization-server/service"
+	"github.com/JormungandrK/jwt-issuer/store"
 	"github.com/JormungandrK/microservice-security/oauth2"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
@@ -15,13 +21,57 @@ import (
 )
 
 func main() {
-	// Create service
-	service := goa.New("")
+	serverConfig := loadServerConfig()
+	keyStore, err := store.NewFileKeyStore(serverConfig.Security.Keys)
+	if err != nil {
+		panic(err)
+	}
+	httpClient := &http.Client{}
+	// create the access services
+
+	clientService, clientCleanup, err := svc.NewClientService(serverConfig, httpClient, keyStore)
+	if err != nil {
+		panic(err)
+	}
+	defer clientCleanup()
+
+	tokenService, tokenCleanup, err := svc.NewTokenService(serverConfig)
+	if err != nil {
+		panic(err)
+	}
+	defer tokenCleanup()
+
+	userService, err := svc.NewUserService(serverConfig, httpClient, keyStore)
+	if err != nil {
+		panic(err)
+	}
+	println(clientService)
+	println(tokenService)
+	println(userService)
+
+	authKey, encyptKey, err := loadSessionKeys(&serverConfig.SessionConfig)
+	if err != nil {
+		panic(err)
+	}
 
 	sessionStore := &security.SecureSessionStore{
-		SessionName: "OAuth2AuthorizationServer",
-		Store:       sessions.NewCookieStore([]byte("super-secret-extra-safe"), securecookie.GenerateRandomKey(32)),
+		SessionName: serverConfig.SessionConfig.SessionName,
+		Store:       sessions.NewCookieStore(authKey, encyptKey),
 	}
+
+	provider := &oauth2.OAuth2Provider{
+		ClientService:             clientService,
+		TokenService:              tokenService,
+		UserService:               userService,
+		KeyStore:                  keyStore,
+		SigningMethod:             serverConfig.AccessTokenSigningMethod,
+		AuthCodeLength:            serverConfig.AuthCodeLength,
+		RefreshTokenLength:        serverConfig.RefreshTokenLength,
+		AccessTokenValidityPeriod: serverConfig.AccessTokenTTL,
+	}
+
+	// Create service
+	service := goa.New("")
 
 	oauth2Scheme := app.NewOAuth2Security()
 
@@ -31,22 +81,8 @@ func main() {
 		ConfirmURL:    "/auth/authorize-client",
 		UsernameField: "username",
 		PasswordField: "password",
-		CookieSecret:  []byte("secret-key"),
 		IgnoreURLs:    []string{"/login", "/oauth2/token"},
-	}, &svc.DummyUserService{
-		Users: map[string]*svc.MockUser{
-			"test-user": &svc.MockUser{
-				User: oauth2.User{
-					ID:            "123456",
-					Username:      "test-user",
-					Email:         "user@example.com",
-					Roles:         []string{"user"},
-					Organizations: []string{"org1"},
-				},
-				Password: "pass",
-			},
-		},
-	}, sessionStore)
+	}, userService, sessionStore)
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
@@ -57,26 +93,26 @@ func main() {
 	service.Use(formLoginMiddleware)
 
 	// Mount "oauth2_provider" controller
-	provider := svc.NewMockOAuth2Provider([]*oauth2.Client{
-		&oauth2.Client{
-			ClientID:    "test-client-0000000001",
-			Name:        "test-client",
-			Description: "Test client",
-			Website:     "http://localhost:9090",
-			Secret:      "super-secret-stuff",
-		},
-	})
+	// provider := svc.NewMockOAuth2Provider([]*oauth2.Client{
+	// 	&oauth2.Client{
+	// 		ClientID:    "test-client-0000000001",
+	// 		Name:        "test-client",
+	// 		Description: "Test client",
+	// 		Website:     "http://localhost:9090",
+	// 		Secret:      "super-secret-stuff",
+	// 	},
+	// })
 
 	oauth2ClientAuth := goaoauth2.NewOAuth2ClientBasicAuthMiddleware(provider)
 	app.UseOauth2ClientBasicAuthMiddleware(service, oauth2ClientAuth)
 
-	c := NewOauth2ProviderController(service, provider, provider.ClientService, provider.TokenService, sessionStore, "/auth/authorize-client")
+	c := NewOauth2ProviderController(service, provider, clientService, tokenService, sessionStore, "/auth/authorize-client")
 	app.MountOauth2ProviderController(service, c)
 
 	publicController := NewPublicController(service)
 	app.MountPublicController(service, publicController)
 
-	authuiCtrl := NewAuthUIController(service, sessionStore, provider.ClientService)
+	authuiCtrl := NewAuthUIController(service, sessionStore, clientService)
 	app.MountAuthUIController(service, authuiCtrl)
 
 	// Start service
@@ -84,4 +120,29 @@ func main() {
 		service.LogError("startup", "err", err)
 	}
 
+}
+
+func loadServerConfig() *config.ServerConfig {
+	confFile := os.Getenv("SVC_CONFIG")
+	if confFile == "" {
+		confFile = "config.json"
+	}
+	conf, err := config.LoadConfig(confFile)
+	if err != nil {
+		panic(err)
+	}
+	return conf
+}
+
+func loadSessionKeys(cfg *config.SessionConfig) (authKey []byte, encKey []byte, err error) {
+	authKey, err = base64.StdEncoding.DecodeString(cfg.AuthKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	if cfg.EncryptKey == "" {
+		encKey = securecookie.GenerateRandomKey(32)
+	} else {
+		encKey, err = base64.StdEncoding.DecodeString(cfg.EncryptKey)
+	}
+	return authKey, encKey, err
 }

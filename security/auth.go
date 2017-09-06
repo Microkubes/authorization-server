@@ -18,8 +18,8 @@ type FormLoginScheme struct {
 	ConfirmURL    string
 	UsernameField string
 	PasswordField string
-	CookieSecret  []byte
-	IgnoreURLs    []string
+	//CookieSecret  []byte
+	IgnoreURLs []string
 }
 
 type AuthorizeClientData struct {
@@ -79,7 +79,9 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 			}
 			// auth has not been set, store the Request URL for next redirect and redirect to login
 			redirect := fmt.Sprintf("%s?%s", req.URL.Path, req.URL.Query().Encode())
-			setRedirectURL(redirect, sessionStore, req, rw)
+			if err := setRedirectURL(redirect, sessionStore, req, rw); err != nil {
+				println("Failed to save session?", err.Error())
+			}
 			fmt.Printf("Redirect saved: %s\n", redirect)
 			rw.Header().Add("Location", scheme.LoginURL)
 			rw.WriteHeader(302)

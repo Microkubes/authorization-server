@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
+	"github.com/JormungandrK/authorization-server/config"
+	"github.com/JormungandrK/jwt-issuer/store"
 	"github.com/JormungandrK/microservice-security/jwt"
 	"github.com/afex/hystrix-go/hystrix"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Signature struct {
@@ -30,7 +34,7 @@ func NewSignedRequest(method string, urlStr string, body io.Reader, signature Si
 
 func ExecRequest(action string, req *http.Request, client *http.Client) (*http.Response, error) {
 	var resp *http.Response
-	hystrix.Do(action, func() error {
+	err := hystrix.Do(action, func() error {
 		r, e := client.Do(req)
 		if e != nil {
 			return e
@@ -38,5 +42,28 @@ func ExecRequest(action string, req *http.Request, client *http.Client) (*http.R
 		resp = r
 		return nil
 	}, nil)
-	return resp, nil
+	return resp, err
+}
+
+func NewSystemSignature(serverName string, securityConf config.Security, keyStore store.KeyStore) (*Signature, error) {
+	claims := map[string]interface{}{
+		"userId":   "system",
+		"username": "system",
+		"roles":    []string{"system"},
+		"iss":      serverName,
+		"sub":      "oauth2-auth-server",
+		"jti":      uuid.NewV4().String(),
+		"nbf":      0,
+		"exp":      time.Now().Add(time.Duration(30 * time.Second)).Unix(),
+		"iat":      time.Now().Unix(),
+	}
+	systemKey, err := keyStore.GetPrivateKeyByName("system")
+	if err != nil {
+		return nil, err
+	}
+	return &Signature{
+		Claims:        claims,
+		Key:           systemKey,
+		SigningMethod: securityConf.SigningMethod,
+	}, nil
 }
