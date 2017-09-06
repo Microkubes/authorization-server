@@ -90,6 +90,43 @@ func (ctx *PromptAuthorizationAuthUIContext) InternalServerError(r error) error 
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// ShowLoginLoginContext provides the login showLogin action context.
+type ShowLoginLoginContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewShowLoginLoginContext parses the incoming request URL and body, performs validations and creates the
+// context used by the login controller showLogin action.
+func NewShowLoginLoginContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowLoginLoginContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ShowLoginLoginContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ShowLoginLoginContext) BadRequest(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *ShowLoginLoginContext) Unauthorized(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ShowLoginLoginContext) InternalServerError(r error) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // AuthorizeOauth2ProviderContext provides the oauth2_provider authorize action context.
 type AuthorizeOauth2ProviderContext struct {
 	context.Context

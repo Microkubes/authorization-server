@@ -68,6 +68,7 @@ func main() {
 		AuthCodeLength:            serverConfig.AuthCodeLength,
 		RefreshTokenLength:        serverConfig.RefreshTokenLength,
 		AccessTokenValidityPeriod: serverConfig.AccessTokenTTL,
+		ProviderName:              serverConfig.ServerName,
 	}
 
 	// Create service
@@ -92,17 +93,6 @@ func main() {
 	service.Use(security.NewStoreOAuth2ParamsMiddleware(sessionStore, oauth2Scheme.AuthorizationURL))
 	service.Use(formLoginMiddleware)
 
-	// Mount "oauth2_provider" controller
-	// provider := svc.NewMockOAuth2Provider([]*oauth2.Client{
-	// 	&oauth2.Client{
-	// 		ClientID:    "test-client-0000000001",
-	// 		Name:        "test-client",
-	// 		Description: "Test client",
-	// 		Website:     "http://localhost:9090",
-	// 		Secret:      "super-secret-stuff",
-	// 	},
-	// })
-
 	oauth2ClientAuth := goaoauth2.NewOAuth2ClientBasicAuthMiddleware(provider)
 	app.UseOauth2ClientBasicAuthMiddleware(service, oauth2ClientAuth)
 
@@ -114,6 +104,9 @@ func main() {
 
 	authuiCtrl := NewAuthUIController(service, sessionStore, clientService)
 	app.MountAuthUIController(service, authuiCtrl)
+
+	loginCtrl := NewLoginController(service, sessionStore)
+	app.MountLoginController(service, loginCtrl)
 
 	// Start service
 	if err := service.ListenAndServe(":8080"); err != nil {

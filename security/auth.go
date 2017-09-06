@@ -60,10 +60,18 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 			}
 			// No auth, attempt creating new one
 			fmt.Println("Attempting form login")
+			sessionStore.Clear("loginError", rw, req)
 			ctx, err := attemptFormLogin(ctx, scheme, userService, rw, req)
 			if err != nil {
-				return err
+				errorMap := map[string]interface{}{
+					"error": err.Error(),
+				}
+				sessionStore.SetValue("loginError", errorMap, rw, req)
+				rw.Header().Add("Location", scheme.LoginURL)
+				rw.WriteHeader(302)
+				return nil
 			}
+
 			if auth.HasAuth(ctx) {
 				fmt.Println("Auth created")
 				// auth has been successful

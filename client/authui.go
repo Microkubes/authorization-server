@@ -42,8 +42,8 @@ func (c *Client) NewConfirmAuthorizationAuthUIRequest(ctx context.Context, path 
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if confirmed != nil {
-		tmp6 := strconv.FormatBool(*confirmed)
-		values.Set("confirmed", tmp6)
+		tmp7 := strconv.FormatBool(*confirmed)
+		values.Set("confirmed", tmp7)
 	}
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)

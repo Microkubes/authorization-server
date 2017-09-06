@@ -15,7 +15,7 @@ var _ = Resource("public", func() {
 	Origin("*", func() {
 		Methods("GET", "POST")
 	})
-	Files("/login", "public/login/login-form.html")
+	Files("/js/*.js", "public/js/*.js")
 
 })
 
@@ -36,5 +36,16 @@ var _ = Resource("authUI", func() {
 		})
 		Response(InternalServerError, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
+	})
+})
+
+var _ = Resource("login", func() {
+	BasePath("/login")
+	Action("showLogin", func() {
+		Description("Shows a login screen")
+		Routing(GET(""))
+		Response(InternalServerError, ErrorMedia)
+		Response(BadRequest, ErrorMedia)
+		Response(Unauthorized, ErrorMedia)
 	})
 })

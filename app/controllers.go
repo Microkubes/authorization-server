@@ -75,6 +75,33 @@ func MountAuthUIController(service *goa.Service, ctrl AuthUIController) {
 	service.LogInfo("mount", "ctrl", "AuthUI", "action", "PromptAuthorization", "route", "GET /auth/authorize-client")
 }
 
+// LoginController is the controller interface for the Login actions.
+type LoginController interface {
+	goa.Muxer
+	ShowLogin(*ShowLoginLoginContext) error
+}
+
+// MountLoginController "mounts" a Login resource controller on the given service.
+func MountLoginController(service *goa.Service, ctrl LoginController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowLoginLoginContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ShowLogin(rctx)
+	}
+	service.Mux.Handle("GET", "/login", ctrl.MuxHandler("showLogin", h, nil))
+	service.LogInfo("mount", "ctrl", "Login", "action", "ShowLogin", "route", "GET /login")
+}
+
 // Oauth2ProviderController is the controller interface for the Oauth2Provider actions.
 type Oauth2ProviderController interface {
 	goa.Muxer
@@ -150,12 +177,12 @@ type PublicController interface {
 func MountPublicController(service *goa.Service, ctrl PublicController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/login", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/js/*.js", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
 
-	h = ctrl.FileHandler("/login", "public/login/login-form.html")
+	h = ctrl.FileHandler("/js/*.js", "public/js/*.js")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/login", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/login/login-form.html", "route", "GET /login")
+	service.Mux.Handle("GET", "/js/*.js", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/js/*.js", "route", "GET /js/*.js")
 }
 
 // handlePublicOrigin applies the CORS response headers corresponding to the origin.

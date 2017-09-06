@@ -39,6 +39,11 @@ type (
 		PrettyPrint bool
 	}
 
+	// ShowLoginLoginCommand is the command line data structure for the showLogin action of login
+	ShowLoginLoginCommand struct {
+		PrettyPrint bool
+	}
+
 	// AuthorizeOauth2ProviderCommand is the command line data structure for the authorize action of oauth2_provider
 	AuthorizeOauth2ProviderCommand struct {
 		// The client identifier
@@ -136,6 +141,20 @@ Payload example:
 	}
 	tmp4.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "show-login",
+		Short: `Shows a login screen`,
+	}
+	tmp5 := new(ShowLoginLoginCommand)
+	sub = &cobra.Command{
+		Use:   `login ["/login"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+	}
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -320,10 +339,10 @@ func (cmd *DownloadCommand) Run(c *client.Client, args []string) error {
 	if rpath[0] != '/' {
 		rpath = "/" + rpath
 	}
-	if rpath == "/login" {
-		fnf = c.DownloadLogin
+	if rpath == "/js/*.js" {
+		fnf = c.DownloadJs
 		if outfile == "" {
-			outfile = "login-form.html"
+			outfile = "*.js"
 		}
 		goto found
 	}
@@ -353,16 +372,16 @@ func (cmd *ConfirmAuthorizationAuthuiCommand) Run(c *client.Client, args []strin
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	var tmp5 *bool
+	var tmp6 *bool
 	if cmd.Confirmed != "" {
 		var err error
-		tmp5, err = boolVal(cmd.Confirmed)
+		tmp6, err = boolVal(cmd.Confirmed)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--confirmed", "err", err)
 			return err
 		}
 	}
-	resp, err := c.ConfirmAuthorizationAuthUI(ctx, path, tmp5)
+	resp, err := c.ConfirmAuthorizationAuthUI(ctx, path, tmp6)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -400,6 +419,30 @@ func (cmd *PromptAuthorizationAuthuiCommand) Run(c *client.Client, args []string
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *PromptAuthorizationAuthuiCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+}
+
+// Run makes the HTTP request corresponding to the ShowLoginLoginCommand command.
+func (cmd *ShowLoginLoginCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/login"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ShowLoginLogin(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ShowLoginLoginCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 }
 
 // Run makes the HTTP request corresponding to the AuthorizeOauth2ProviderCommand command.

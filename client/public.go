@@ -20,14 +20,14 @@ import (
 	"os"
 )
 
-// DownloadLogin downloads login-form.html and writes it to the file dest.
+// DownloadJs downloads *.js and writes it to the file dest.
 // It returns the number of bytes downloaded in case of success.
-func (c *Client) DownloadLogin(ctx context.Context, dest string) (int64, error) {
+func (c *Client) DownloadJs(ctx context.Context, dest string) (int64, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
-	u := url.URL{Host: c.Host, Scheme: scheme, Path: "/login"}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: "/js/*.js"}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return 0, err

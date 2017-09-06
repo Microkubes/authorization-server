@@ -200,15 +200,39 @@ paths:
       summary: confirmAuthorization authUI
       tags:
       - authUI
-  /login:
+  /js/*.js:
     get:
-      operationId: public#/login
+      operationId: public#/js/*.js
       responses:
         "200":
           description: File downloaded
           schema:
             type: file
-      summary: Download public/login/login-form.html
+      summary: Download public/js/*.js
+  /login:
+    get:
+      description: Shows a login screen
+      operationId: login#showLogin
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      summary: showLogin login
+      tags:
+      - login
   /oauth2/authorize:
     get:
       description: Authorize OAuth2 client
