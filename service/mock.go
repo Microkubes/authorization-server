@@ -94,22 +94,22 @@ func NewMockClientService() *DummyClientService {
 }
 
 type DummyTokenService struct {
-	Tokens map[string]*oauth2.OAuth2Token
+	Tokens map[string]*oauth2.AuthToken
 }
 
-func (d *DummyTokenService) SaveToken(token oauth2.OAuth2Token) error {
+func (d *DummyTokenService) SaveToken(token oauth2.AuthToken) error {
 	d.Tokens[token.RefreshToken] = &token
 	return nil
 }
 
-func (d *DummyTokenService) GetToken(refreshToken string) (*oauth2.OAuth2Token, error) {
+func (d *DummyTokenService) GetToken(refreshToken string) (*oauth2.AuthToken, error) {
 	if token, ok := d.Tokens[refreshToken]; ok {
 		return token, nil
 	}
 	return nil, nil
 }
 
-func (d *DummyTokenService) GetTokenForClient(userID, clientID string) (*oauth2.OAuth2Token, error) {
+func (d *DummyTokenService) GetTokenForClient(userID, clientID string) (*oauth2.AuthToken, error) {
 	return nil, nil
 }
 
@@ -146,15 +146,15 @@ func NewDummyKeyStore() *DummyKeyStore {
 	}
 }
 
-func NewMockOAuth2Provider(clients []*oauth2.Client) *oauth2.OAuth2Provider {
+func NewMockOAuth2Provider(clients []*oauth2.Client) *oauth2.AuthProvider {
 	cs := NewMockClientService()
 	for _, client := range clients {
 		cs.Clients[client.ClientID] = client
 	}
-	return &oauth2.OAuth2Provider{
+	return &oauth2.AuthProvider{
 		ClientService: cs,
 		TokenService: &DummyTokenService{
-			Tokens: map[string]*oauth2.OAuth2Token{},
+			Tokens: map[string]*oauth2.AuthToken{},
 		},
 		KeyStore:                  NewDummyKeyStore(),
 		SigningMethod:             "RS512",

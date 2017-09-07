@@ -9,9 +9,9 @@ import (
 )
 
 type TokenRepository interface {
-	GetForClientAndUser(clientID, userID string) (*oauth2.OAuth2Token, error)
-	GetForRefreshToken(refreshToken string) (*oauth2.OAuth2Token, error)
-	Save(token *oauth2.OAuth2Token) (*oauth2.OAuth2Token, error)
+	GetForClientAndUser(clientID, userID string) (*oauth2.AuthToken, error)
+	GetForRefreshToken(refreshToken string) (*oauth2.AuthToken, error)
+	Save(token *oauth2.AuthToken) (*oauth2.AuthToken, error)
 }
 
 type MongoDBTokenRepository struct {
@@ -63,8 +63,8 @@ func NewTokenRepository(host, dbName, username, password string, tokenTTL time.D
 	return tokenRepo, func() { session.Close() }, nil
 }
 
-func (m *MongoDBTokenRepository) GetForClientAndUser(clientID, userID string) (*oauth2.OAuth2Token, error) {
-	token := oauth2.OAuth2Token{}
+func (m *MongoDBTokenRepository) GetForClientAndUser(clientID, userID string) (*oauth2.AuthToken, error) {
+	token := oauth2.AuthToken{}
 	err := m.collection.Find(bson.M{
 		"clientId": clientID,
 		"userId":   userID,
@@ -75,8 +75,8 @@ func (m *MongoDBTokenRepository) GetForClientAndUser(clientID, userID string) (*
 	return &token, nil
 }
 
-func (m *MongoDBTokenRepository) GetForRefreshToken(refreshToken string) (*oauth2.OAuth2Token, error) {
-	token := oauth2.OAuth2Token{}
+func (m *MongoDBTokenRepository) GetForRefreshToken(refreshToken string) (*oauth2.AuthToken, error) {
+	token := oauth2.AuthToken{}
 	err := m.collection.Find(bson.M{
 		"refreshToken": refreshToken,
 	}).One(&token)
@@ -86,7 +86,7 @@ func (m *MongoDBTokenRepository) GetForRefreshToken(refreshToken string) (*oauth
 	return &token, nil
 }
 
-func (m *MongoDBTokenRepository) Save(token *oauth2.OAuth2Token) (*oauth2.OAuth2Token, error) {
+func (m *MongoDBTokenRepository) Save(token *oauth2.AuthToken) (*oauth2.AuthToken, error) {
 	tokenMap := map[string]interface{}{}
 	m.collection.Find(bson.M{
 		"userId":   token.UserID,

@@ -59,7 +59,7 @@ func main() {
 		Store:       sessions.NewCookieStore(authKey, encyptKey),
 	}
 
-	provider := &oauth2.OAuth2Provider{
+	provider := &oauth2.AuthProvider{
 		ClientService:             clientService,
 		TokenService:              tokenService,
 		UserService:               userService,

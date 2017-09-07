@@ -12,12 +12,12 @@ type OAuth2TokenService struct {
 	db.TokenRepository
 }
 
-func (t *OAuth2TokenService) SaveToken(token oauth2.OAuth2Token) error {
+func (t *OAuth2TokenService) SaveToken(token oauth2.AuthToken) error {
 	_, err := t.TokenRepository.Save(&token)
 	return err
 }
 
-func (t *OAuth2TokenService) GetToken(refreshToken string) (*oauth2.OAuth2Token, error) {
+func (t *OAuth2TokenService) GetToken(refreshToken string) (*oauth2.AuthToken, error) {
 	token, err := t.TokenRepository.GetForRefreshToken(refreshToken)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (t *OAuth2TokenService) GetToken(refreshToken string) (*oauth2.OAuth2Token,
 	return token, nil
 }
 
-func (t *OAuth2TokenService) GetTokenForClient(userID, clientID string) (*oauth2.OAuth2Token, error) {
+func (t *OAuth2TokenService) GetTokenForClient(userID, clientID string) (*oauth2.AuthToken, error) {
 	token, err := t.TokenRepository.GetForClientAndUser(clientID, userID)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (t *OAuth2TokenService) GetTokenForClient(userID, clientID string) (*oauth2
 	return token, nil
 }
 
-func isExpired(token *oauth2.OAuth2Token) bool {
+func isExpired(token *oauth2.AuthToken) bool {
 	now := time.Now()
 	tokenValidUntil := time.Unix(0, token.IssuedAt).Add(time.Duration(token.ValidFor) * time.Millisecond)
 	return now.After(tokenValidUntil)
