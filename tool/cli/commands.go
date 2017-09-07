@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"log"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -339,10 +340,19 @@ func (cmd *DownloadCommand) Run(c *client.Client, args []string) error {
 	if rpath[0] != '/' {
 		rpath = "/" + rpath
 	}
-	if rpath == "/js/*.js" {
-		fnf = c.DownloadJs
+	if strings.HasPrefix(rpath, "/css/") {
+		fnd = c.DownloadCSS
+		rpath = rpath[5:]
 		if outfile == "" {
-			outfile = "*.js"
+			_, outfile = path.Split(rpath)
+		}
+		goto found
+	}
+	if strings.HasPrefix(rpath, "/js/") {
+		fnd = c.DownloadJs
+		rpath = rpath[4:]
+		if outfile == "" {
+			_, outfile = path.Split(rpath)
 		}
 		goto found
 	}

@@ -3,6 +3,7 @@ package security
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"context"
@@ -67,7 +68,14 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 	return func(h goa.Handler) goa.Handler {
 		return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 			for _, ignoreURL := range scheme.IgnoreURLs {
-				if req.URL.Path == ignoreURL {
+				// if req.URL.Path == ignoreURL {
+				// 	return h(ctx, rw, req)
+				// }
+				match, err := regexp.MatchString(ignoreURL, req.URL.Path)
+				if err != nil {
+					panic(err)
+				}
+				if match {
 					return h(ctx, rw, req)
 				}
 			}

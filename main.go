@@ -82,7 +82,7 @@ func main() {
 		ConfirmURL:    "/auth/authorize-client",
 		UsernameField: "username",
 		PasswordField: "password",
-		IgnoreURLs:    []string{"/login", "/oauth2/token"},
+		IgnoreURLs:    []string{"/login", "/oauth2/token", "/css/.*", "/js/.*", "/favicon.ico"},
 	}, userService, sessionStore)
 
 	// Mount middleware

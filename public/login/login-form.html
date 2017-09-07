@@ -1,11 +1,33 @@
 <html>
-
+<head>
+  <title>Jormungandr: Sign In</title>
+  <link rel="stylesheet" type="text/css" href="/css/auth-server.css"/>
+</head>
 <body>
-  <form action="/check_credentials" method="POST">
-    Username: <input type="text" name="username"/>
-    Password: <input type="password" name="password"/>
-    {{.error}}
-    <input type="submit" value="Login" />
-  </form>
+  <div class="card">
+    <div class="card-title">
+      Welcome<br/>
+      Please Sign In
+    </div>
+    <form action="/check_credentials" method="POST" class="form">
+      <div class="card-content">
+        <div class="error">
+          {{.error}}
+        </div>
+        <div class="form-control">
+
+          <input type="text" name="username" placeholder="username" title="Please enter your username"/>
+        </div>
+        <div class="form-control">
+
+          <input type="password" name="password" placeholder="password" title="Please enter your password"/>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button value="Sign In" class="form-button">Sign In</button>
+        <a href="#" class="form-button">Create Account</a>
+      </div>
+    </form>
+  </div>
 </body>
 </html>

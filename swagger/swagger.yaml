@@ -200,15 +200,44 @@ paths:
       summary: confirmAuthorization authUI
       tags:
       - authUI
-  /js/*.js:
+  /css/{filepath}:
     get:
-      operationId: public#/js/*.js
+      operationId: public#/css/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
       responses:
         "200":
           description: File downloaded
           schema:
             type: file
-      summary: Download public/js/*.js
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      summary: Download public/css
+  /js/{filepath}:
+    get:
+      operationId: public#/js/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      summary: Download public/js
   /login:
     get:
       description: Shows a login screen

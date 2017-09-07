@@ -26,7 +26,7 @@ func NewLoginController(service *goa.Service, sessionStore security.SessionStore
 // ShowLogin runs the showLogin action.
 func (c *LoginController) ShowLogin(ctx *app.ShowLoginLoginContext) error {
 	// LoginController_ShowLogin: start_implement
-
+	println("**LOGIN**")
 	loginError := map[string]interface{}{}
 	c.SessionStore.GetAs("loginError", &loginError, ctx.Request)
 
@@ -47,10 +47,13 @@ func (c *LoginController) ShowLogin(ctx *app.ShowLoginLoginContext) error {
 	}
 
 	rw := ctx.ResponseWriter
-	rw.WriteHeader(responseCode)
-	rw.Header().Set("Content-Type", "text/html")
-	t.Execute(rw, loginError)
 
+	rw.Header().Set("Content-Type", "text/html")
+	err = t.Execute(rw, loginError)
+	rw.WriteHeader(responseCode)
+	if err != nil {
+		println(err.Error())
+	}
 	// LoginController_ShowLogin: end_implement
 	return nil
 }

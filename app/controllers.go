@@ -177,12 +177,28 @@ type PublicController interface {
 func MountPublicController(service *goa.Service, ctrl PublicController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/js/*.js", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/css/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/js/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
 
-	h = ctrl.FileHandler("/js/*.js", "public/js/*.js")
+	h = ctrl.FileHandler("/css/*filepath", "public/css")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/js/*.js", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/js/*.js", "route", "GET /js/*.js")
+	service.Mux.Handle("GET", "/css/*filepath", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/css", "route", "GET /css/*filepath")
+
+	h = ctrl.FileHandler("/js/*filepath", "public/js")
+	h = handlePublicOrigin(h)
+	service.Mux.Handle("GET", "/js/*filepath", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/js", "route", "GET /js/*filepath")
+
+	h = ctrl.FileHandler("/css/", "public/css/index.html")
+	h = handlePublicOrigin(h)
+	service.Mux.Handle("GET", "/css/", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/css/index.html", "route", "GET /css/")
+
+	h = ctrl.FileHandler("/js/", "public/js/index.html")
+	h = handlePublicOrigin(h)
+	service.Mux.Handle("GET", "/js/", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/js/index.html", "route", "GET /js/")
 }
 
 // handlePublicOrigin applies the CORS response headers corresponding to the origin.
