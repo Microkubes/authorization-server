@@ -8,17 +8,28 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// TokenRepository defines interface for accessing OAuth2 tokens in a persistence.
 type TokenRepository interface {
+
+	// GetForClientAndUser retrieves an AuthToken for a particular user and client.
 	GetForClientAndUser(clientID, userID string) (*oauth2.AuthToken, error)
+
+	// GetForRefreshToken retrieves an AuthToken by its refreshToken value.
 	GetForRefreshToken(refreshToken string) (*oauth2.AuthToken, error)
+
+	// Save save new AuthToken.
 	Save(token *oauth2.AuthToken) (*oauth2.AuthToken, error)
 }
 
+// MongoDBTokenRepository holds mongo related values for TokenRepository implementation.
 type MongoDBTokenRepository struct {
 	collection *mgo.Collection
 	tokenTTL   time.Duration
 }
 
+// NewTokenRepository creates new TokenRepository that is backed by mongo.
+// Note that you need to provide a token TTL. Each token entry in mongo is
+// set to expire after this time duration.
 func NewTokenRepository(host, dbName, username, password string, tokenTTL time.Duration) (*MongoDBTokenRepository, func(), error) {
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
 		Addrs:    []string{host},
@@ -63,6 +74,7 @@ func NewTokenRepository(host, dbName, username, password string, tokenTTL time.D
 	return tokenRepo, func() { session.Close() }, nil
 }
 
+// GetForClientAndUser retrieves the AuthToken from the backing mongo collection.
 func (m *MongoDBTokenRepository) GetForClientAndUser(clientID, userID string) (*oauth2.AuthToken, error) {
 	token := oauth2.AuthToken{}
 	err := m.collection.Find(bson.M{
@@ -75,6 +87,7 @@ func (m *MongoDBTokenRepository) GetForClientAndUser(clientID, userID string) (*
 	return &token, nil
 }
 
+// GetForRefreshToken retrieves the AuthToken identified by its refreshToken from the backing mongo collection.
 func (m *MongoDBTokenRepository) GetForRefreshToken(refreshToken string) (*oauth2.AuthToken, error) {
 	token := oauth2.AuthToken{}
 	err := m.collection.Find(bson.M{
@@ -86,6 +99,8 @@ func (m *MongoDBTokenRepository) GetForRefreshToken(refreshToken string) (*oauth
 	return &token, nil
 }
 
+// Save saves new AuthToken in the backing mongo collection.
+// The token record is automatically removed by Mongo after its token TTL is reached.
 func (m *MongoDBTokenRepository) Save(token *oauth2.AuthToken) (*oauth2.AuthToken, error) {
 	tokenMap := map[string]interface{}{}
 	m.collection.Find(bson.M{

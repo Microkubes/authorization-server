@@ -11,12 +11,19 @@ import (
 	"github.com/JormungandrK/microservice-security/oauth2"
 )
 
+// UserServiceAPI holds the data for implementation of oauth2.UserService.
 type UserServiceAPI struct {
+	// ServiceURL is the URL of the user microservice.
 	ServiceURL string
+
+	// Client is the http.Client used for all requests.
 	*http.Client
+
+	// Signature is the Signature of this server used for signing the self-issued JWTs.
 	Signature
 }
 
+// VerifyUser makes a call to the user microservice to verify the user credentials.
 func (u *UserServiceAPI) VerifyUser(username, password string) (*oauth2.User, error) {
 	credentials := map[string]string{
 		"username": username,
@@ -46,6 +53,7 @@ func (u *UserServiceAPI) VerifyUser(username, password string) (*oauth2.User, er
 	return &user, nil
 }
 
+// NewUserService crates new UserServiceAPI from the ServerConfig.
 func NewUserService(serverConfig *config.ServerConfig, client *http.Client, keyStore store.KeyStore) (*UserServiceAPI, error) {
 	signature, err := NewSystemSignature(serverConfig.ServerName, serverConfig.Security, keyStore)
 	if err != nil {

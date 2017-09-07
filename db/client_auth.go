@@ -8,17 +8,28 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// ClientAuthRepository defines the interface for accessing the ClientAuth in a persistence.
 type ClientAuthRepository interface {
+
+	// GetWithCode looks up a ClientAuth by the clientID and the authorization code.
 	GetWithCode(clientID, code string) (*oauth2.ClientAuth, error)
+
+	// GetWithUserID looks up a ClientAuth by the clientID and the userID of the user that authorized that client.
 	GetWithUserID(clientID, userID string) (*oauth2.ClientAuth, error)
+
+	// Save saves the new or updated ClientAuth.
 	Save(clientAuth *oauth2.ClientAuth) (*oauth2.ClientAuth, error)
+
+	// Delete removes a ClientAuth for a client and auth code.
 	Delete(clientID, code string) error
 }
 
+// MongoDBClientAuthRepository holds the mongo related collection for the ClientAuthRepository implementation.
 type MongoDBClientAuthRepository struct {
 	collection *mgo.Collection
 }
 
+// NewDBClientAuthRepository creates new ClientAuthRepository that is backed by a Mongodb collection.
 func NewDBClientAuthRepository(host, dbName, username, password string, clientAuthTTL time.Duration) (*MongoDBClientAuthRepository, func(), error) {
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
 		Addrs:    []string{host},
@@ -66,6 +77,7 @@ func index(ID string) mgo.Index {
 	}
 }
 
+// GetWithCode retrieves the ClientAuth from mongo db collection.
 func (m *MongoDBClientAuthRepository) GetWithCode(clientID, code string) (*oauth2.ClientAuth, error) {
 	ca := oauth2.ClientAuth{}
 	err := m.collection.Find(bson.M{
@@ -78,6 +90,7 @@ func (m *MongoDBClientAuthRepository) GetWithCode(clientID, code string) (*oauth
 	return &ca, nil
 }
 
+// GetWithUserID retrieves the ClientAuth for a particular user and client from mongo db collection.
 func (m *MongoDBClientAuthRepository) GetWithUserID(clientID, userID string) (*oauth2.ClientAuth, error) {
 	ca := oauth2.ClientAuth{}
 	err := m.collection.Find(bson.M{
@@ -90,6 +103,9 @@ func (m *MongoDBClientAuthRepository) GetWithUserID(clientID, userID string) (*o
 	return &ca, nil
 }
 
+// Save saves new or updated ClientAuth in mongo db collection.
+// The record in mongo is stored with expiration time (TTL) and will be automatically removed by mongo
+// once the expiration time is reached.
 func (m *MongoDBClientAuthRepository) Save(clientAuth *oauth2.ClientAuth) (*oauth2.ClientAuth, error) {
 	ca := map[string]interface{}{}
 	m.collection.Find(bson.M{
@@ -122,6 +138,7 @@ func (m *MongoDBClientAuthRepository) Save(clientAuth *oauth2.ClientAuth) (*oaut
 	return clientAuth, nil
 }
 
+// Delete removes the ClientAuth for a client and auth code from mongo db collection.
 func (m *MongoDBClientAuthRepository) Delete(clientID, code string) error {
 	err := m.collection.Remove(bson.M{
 		"clientId": clientID,

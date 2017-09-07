@@ -12,37 +12,62 @@ import (
 	"github.com/goadesign/goa"
 )
 
+// FormLoginScheme holds the configuration for a Form-based user login and authentication.
+// This is used for creating new form-login based authentication Middleware.
 type FormLoginScheme struct {
-	PostURL       string
-	LoginURL      string
-	ConfirmURL    string
+	// PostURL is the URL to which the user credentials are submitted and checked. For example: "/check_credentials".
+	PostURL string
+
+	// LoginURL is the URL on which the user is redirected to log in. A login form is displayed. Example: "/login".
+	LoginURL string
+
+	ConfirmURL string
+
+	// UsernameField is the name of the input field (and POST parameter) for the username user credential.
 	UsernameField string
+
+	//  PasswordField is the name of the input field (and POST parameter) for the password user credential.
 	PasswordField string
-	//CookieSecret  []byte
+
+	// IgnoreURLs is a list of URLs that are to be ignored by this authentication middleware and are considered public.
 	IgnoreURLs []string
 }
 
+// AuthorizeClientData holds the data needed for authorization. Usually kept in the session.
+// It is used to propery redirect back to the "authorize" OAuth2 action.
 type AuthorizeClientData struct {
+	// The original authorize request URL (Path+Query params) that the client has made.
+	// The client will be redirected here after successful confirmation by the user.
 	AuthorizeRequest string
-	ClientID         string
-	Confirmed        bool
+
+	// ClientID is the client identifier.
+	ClientID string
+
+	// Confirmed whether the user confirmed that the client can access the data and can be issued an access token.
+	Confirmed bool
 }
 
-const AUTH_SERVER_SESSION = "OAuth2AuthServer"
-const AUTH_USER_DATA = "user"
-const AUTH_REDIRECT = "redirect"
+// SessionUserDataKey session key for the user data
+const SessionUserDataKey = "user"
 
+// SessionRedirectKey session key for the redirect URL
+const SessionRedirectKey = "redirect"
+
+// Unauthorized is an HTTP error for unauthorized request (an authorization is required).
 var Unauthorized = goa.NewErrorClass("unauthorized", 401)
+
+// Forbidden is an HTTP error issued when the authorization does not allow for the client to access the resource.
 var Forbidden = goa.NewErrorClass("forbidden", 403)
+
+// ServerError is a generic HTTP server error.
 var ServerError = goa.NewErrorClass("server_error", 500)
 
+// FormLoginMiddleware creates new goa.Middleware for security and form-base authentication.
 func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService, sessionStore SessionStore) goa.Middleware {
-	fmt.Printf("Session store created")
 	return func(h goa.Handler) goa.Handler {
 		return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 			for _, ignoreURL := range scheme.IgnoreURLs {
 				if req.URL.Path == ignoreURL {
-					fmt.Printf("Ignored URL: %s\n", req.URL.Path)
 					return h(ctx, rw, req)
 				}
 			}
@@ -55,11 +80,9 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 					rw.WriteHeader(302)
 					return nil
 				}
-				fmt.Println("Passing through (1)")
 				return h(ctx, rw, req)
 			}
 			// No auth, attempt creating new one
-			fmt.Println("Attempting form login")
 			sessionStore.Clear("loginError", rw, req)
 			ctx, err := attemptFormLogin(ctx, scheme, userService, rw, req)
 			if err != nil {
@@ -73,7 +96,6 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 			}
 
 			if auth.HasAuth(ctx) {
-				fmt.Println("Auth created")
 				// auth has been successful
 				setAuth(auth.GetAuth(ctx), sessionStore, req, rw)
 				if redirect := getRedirectURL(sessionStore, req); redirect != "" {
@@ -82,7 +104,6 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 					rw.WriteHeader(302)
 					return nil
 				}
-				fmt.Println("Passing through (2)")
 				return h(ctx, rw, req)
 			}
 			// auth has not been set, store the Request URL for next redirect and redirect to login
@@ -90,10 +111,8 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 			if err := setRedirectURL(redirect, sessionStore, req, rw); err != nil {
 				println("Failed to save session?", err.Error())
 			}
-			fmt.Printf("Redirect saved: %s\n", redirect)
 			rw.Header().Add("Location", scheme.LoginURL)
 			rw.WriteHeader(302)
-			fmt.Println("Redirecting to login URL:", scheme.LoginURL)
 			return nil
 		}
 	}
@@ -101,7 +120,7 @@ func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService
 
 func getAuth(store SessionStore, req *http.Request) *auth.Auth {
 	authObj := auth.Auth{}
-	err := store.GetAs(AUTH_USER_DATA, &authObj, req)
+	err := store.GetAs(SessionUserDataKey, &authObj, req)
 	if err != nil {
 		return nil
 	}
@@ -109,14 +128,14 @@ func getAuth(store SessionStore, req *http.Request) *auth.Auth {
 }
 
 func setAuth(authObj *auth.Auth, store SessionStore, req *http.Request, rw http.ResponseWriter) error {
-	return store.SetValue(AUTH_USER_DATA, authObj, rw, req)
+	return store.SetValue(SessionUserDataKey, authObj, rw, req)
 }
 func clearAuth(store SessionStore, req *http.Request, rw http.ResponseWriter) error {
-	return store.Clear(AUTH_USER_DATA, rw, req)
+	return store.Clear(SessionUserDataKey, rw, req)
 }
 
 func getRedirectURL(store SessionStore, req *http.Request) string {
-	redirect, err := store.Get(AUTH_REDIRECT, req)
+	redirect, err := store.Get(SessionRedirectKey, req)
 	if err != nil || redirect == nil {
 		return ""
 	}
@@ -124,11 +143,11 @@ func getRedirectURL(store SessionStore, req *http.Request) string {
 }
 
 func setRedirectURL(redirect string, store SessionStore, req *http.Request, rw http.ResponseWriter) error {
-	return store.Set(AUTH_REDIRECT, redirect, rw, req)
+	return store.Set(SessionRedirectKey, redirect, rw, req)
 }
 
 func clearRedirectURL(store SessionStore, req *http.Request, rw http.ResponseWriter) error {
-	return store.Clear(AUTH_REDIRECT, rw, req)
+	return store.Clear(SessionRedirectKey, rw, req)
 }
 
 func getUserAuthForCredentials(username, password string, userService oauth2.UserService) (*auth.Auth, error) {
@@ -169,6 +188,7 @@ func attemptFormLogin(ctx context.Context, scheme *FormLoginScheme, userService 
 	return ctx, nil
 }
 
+// NewStoreOAuth2ParamsMiddleware creates goa.Middleware that stores the clientID in session.
 func NewStoreOAuth2ParamsMiddleware(sessionStore SessionStore, authorizeURL string) goa.Middleware {
 	return func(h goa.Handler) goa.Handler {
 		return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
@@ -176,7 +196,6 @@ func NewStoreOAuth2ParamsMiddleware(sessionStore SessionStore, authorizeURL stri
 				clientID := req.URL.Query().Get("client_id")
 				if clientID != "" {
 					sessionStore.Set("clientId", clientID, rw, req)
-					println("Client ID set -> ", clientID)
 				}
 			}
 			return h(ctx, rw, req)

@@ -13,12 +13,22 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Signature holds the data for signing the self-issued JWTs for accessing
+// dependencies microservices.
 type Signature struct {
+
+	// SigningMethod is the method used for signing the JWT. Valid values are "RS256", "RS384" and "RS512".
 	SigningMethod string
-	Key           interface{}
-	Claims        map[string]interface{}
+
+	// Key is the private key used for signing the JWT.
+	Key interface{}
+
+	// Claims is the map of standard and custom defined claims for the JWT.
+	Claims map[string]interface{}
 }
 
+// NewSignedRequest creates an HTTP request that is signed with the given Signature.
+// The request has its Authorization header populated with the generated JWT.
 func NewSignedRequest(method string, urlStr string, body io.Reader, signature Signature) (*http.Request, error) {
 	req, err := http.NewRequest(method, urlStr, body)
 	if err != nil {
@@ -32,6 +42,8 @@ func NewSignedRequest(method string, urlStr string, body io.Reader, signature Si
 	return req, err
 }
 
+// ExecRequest executes an HTTP request to a given service.
+// The execution is wrapped in a hystrix command with the name set to the "action" argument.
 func ExecRequest(action string, req *http.Request, client *http.Client) (*http.Response, error) {
 	var resp *http.Response
 	err := hystrix.Do(action, func() error {
@@ -45,6 +57,8 @@ func ExecRequest(action string, req *http.Request, client *http.Client) (*http.R
 	return resp, err
 }
 
+// NewSystemSignature generates a common Signature from a given configuration. This Signature is
+// issued with system authentication and used for communication with other microservices on the platform.
 func NewSystemSignature(serverName string, securityConf config.Security, keyStore store.KeyStore) (*Signature, error) {
 	claims := map[string]interface{}{
 		"userId":   "system",
