@@ -1,0 +1,363 @@
+consumes:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+definitions:
+  OAuth2ErrorMedia:
+    description: OAuth2 error response, see https://tools.ietf.org/html/rfc6749#section-5.2
+      (default view)
+    example:
+      error: invalid_request
+      error_description: Omnis est ex sed.
+      error_uri: Et eos consequatur autem deleniti sed.
+    properties:
+      error:
+        description: Error returned by authorization server
+        enum:
+        - invalid_request
+        - invalid_client
+        - invalid_grant
+        - unauthorized_client
+        - unsupported_grant_type
+        example: invalid_request
+        type: string
+      error_description:
+        description: Human readable ASCII text providing additional information
+        example: Omnis est ex sed.
+        type: string
+      error_uri:
+        description: A URI identifying a human-readable web page with information
+          about the error
+        example: Et eos consequatur autem deleniti sed.
+        type: string
+    required:
+    - error
+    title: 'Mediatype identifier: application/vnd.goa.example.oauth2.error+json; view=default'
+    type: object
+  TokenMedia:
+    description: OAuth2 access token request successful response, see https://tools.ietf.org/html/rfc6749#section-5.1
+      (default view)
+    example:
+      access_token: Nisi ex velit amet eius tempora iusto.
+      expires_in: 1.6573795e+18
+      refresh_token: Numquam velit et explicabo id.
+      scope: Qui dignissimos corrupti similique voluptatibus a alias.
+      token_type: Est minima vel possimus enim saepe.
+    properties:
+      access_token:
+        description: The access token issued by the authorization server
+        example: Nisi ex velit amet eius tempora iusto.
+        type: string
+      expires_in:
+        description: The lifetime in seconds of the access token
+        example: 1.6573795e+18
+        format: int64
+        type: integer
+      refresh_token:
+        description: The refresh token
+        example: Numquam velit et explicabo id.
+        type: string
+      scope:
+        description: The scope of the access token
+        example: Qui dignissimos corrupti similique voluptatibus a alias.
+        type: string
+      token_type:
+        description: The type of the token issued, e.g. "bearer" or "mac"
+        example: Est minima vel possimus enim saepe.
+        type: string
+    required:
+    - access_token
+    - token_type
+    title: 'Mediatype identifier: application/vnd.goa.example.oauth2.token+json; view=default'
+    type: object
+  TokenPayload:
+    description: |-
+      Payload sent by client to obtain refresh and access token or to refresh an access token.
+      see https://tools.ietf.org/html/rfc6749#section-4.1.3 and https://tools.ietf.org/html/rfc6749#section-6
+    example:
+      code: Delectus aut libero nesciunt veniam reiciendis.
+      grant_type: refresh_token
+      redirect_uri: Ipsum et aut.
+      refresh_token: Et qui quia sed odio sint.
+      scope: Iste laborum nostrum quidem sequi dolor.
+    properties:
+      code:
+        description: The authorization code received from the authorization server,
+          used for initial refresh and access token request
+        example: Delectus aut libero nesciunt veniam reiciendis.
+        type: string
+      grant_type:
+        description: |-
+          Value MUST be set to "authorization_code" when obtaining initial refresh and access token.
+          Value MUST be set to "refresh_token" when refreshing an access token.
+        enum:
+        - authorization_code
+        - refresh_token
+        example: refresh_token
+        type: string
+      redirect_uri:
+        description: The redirect_uri parameter specified when making the authorize
+          request to obtain the authorization code, used for initial refresh and access
+          token request
+        example: Ipsum et aut.
+        type: string
+      refresh_token:
+        description: The refresh token issued to the client, used for refreshing an
+          access token
+        example: Et qui quia sed odio sint.
+        type: string
+      scope:
+        description: The scope of the access request, used for refreshing an access
+          token
+        example: Iste laborum nostrum quidem sequi dolor.
+        type: string
+    required:
+    - grant_type
+    title: TokenPayload
+    type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+info:
+  version: ""
+paths:
+  /auth/authorize-client:
+    get:
+      description: Prompt the user for client authorization
+      operationId: authUI#promptAuthorization
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      summary: promptAuthorization authUI
+      tags:
+      - authUI
+  /auth/confirm-authorization:
+    post:
+      description: Confirm the authorization of the client
+      operationId: authUI#confirmAuthorization
+      parameters:
+      - description: Is the authorization confirmed.
+        in: query
+        name: confirmed
+        required: false
+        type: boolean
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      summary: confirmAuthorization authUI
+      tags:
+      - authUI
+  /css/{filepath}:
+    get:
+      operationId: public#/css/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      summary: Download public/css
+  /js/{filepath}:
+    get:
+      operationId: public#/js/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      summary: Download public/js
+  /login:
+    get:
+      description: Shows a login screen
+      operationId: login#showLogin
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      - application/vnd.goa.error
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      summary: showLogin login
+      tags:
+      - login
+  /oauth2/authorize:
+    get:
+      description: Authorize OAuth2 client
+      operationId: oauth2_provider#authorize
+      parameters:
+      - description: The client identifier
+        in: query
+        name: client_id
+        required: true
+        type: string
+      - description: Redirection endpoint
+        in: query
+        name: redirect_uri
+        required: false
+        type: string
+      - description: Value MUST be set to "code"
+        enum:
+        - code
+        in: query
+        name: response_type
+        required: true
+        type: string
+      - description: The scope of the access request
+        in: query
+        name: scope
+        required: false
+        type: string
+      - description: An opaque value used by the client to maintain state between
+          the request and callback
+        in: query
+        name: state
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.example.oauth2.error+json
+      responses:
+        "302":
+          description: Found
+          headers:
+            Location:
+              description: Redirect URL containing the authorization code and state
+                param if any
+              type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/OAuth2ErrorMedia'
+      summary: authorize oauth2_provider
+      tags:
+      - oauth2_provider
+  /oauth2/token:
+    post:
+      description: Get access token from authorization code or refresh token
+      operationId: oauth2_provider#get_token
+      parameters:
+      - description: |-
+          Payload sent by client to obtain refresh and access token or to refresh an access token.
+          see https://tools.ietf.org/html/rfc6749#section-4.1.3 and https://tools.ietf.org/html/rfc6749#section-6
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/TokenPayload'
+      produces:
+      - application/vnd.goa.example.oauth2.error+json
+      - application/vnd.goa.example.oauth2.token+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/TokenMedia'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/OAuth2ErrorMedia'
+      security:
+      - oauth2_client_basic_auth: []
+      summary: get_token oauth2_provider
+      tags:
+      - oauth2_provider
+produces:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+securityDefinitions:
+  OAuth2:
+    authorizationUrl: /oauth2/authorize
+    flow: accessCode
+    scopes:
+      api:read: no description
+      api:write: no description
+    tokenUrl: /oauth2/token
+    type: oauth2
+  oauth2_client_basic_auth:
+    description: Basic auth used by client to make the requests needed to retrieve
+      and refresh access tokens
+    type: basic
+swagger: "2.0"
