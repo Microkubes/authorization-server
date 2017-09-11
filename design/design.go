@@ -15,8 +15,8 @@ var _ = Resource("public", func() {
 	Origin("*", func() {
 		Methods("GET", "POST")
 	})
-	Files("/js/*.js", "public/js/*.js")
-
+	Files("/css/*filepath", "public/css")
+	Files("/js/*filepath", "public/js")
 })
 
 var _ = Resource("authUI", func() {
