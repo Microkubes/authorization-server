@@ -68,6 +68,7 @@ func (c *ClientServiceAPI) VerifyClientCredentials(clientID, clientSecret string
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := ExecRequest("microservice-apps", req, c.Client)
 	if err != nil {
