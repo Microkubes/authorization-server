@@ -1,8 +1,6 @@
 package service
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"fmt"
 	"strings"
 
@@ -113,56 +111,56 @@ func (d *DummyTokenService) GetTokenForClient(userID, clientID string) (*oauth2.
 	return nil, nil
 }
 
-type DummyKeyStore struct {
-	PrivateKey interface{}
-}
+// type DummyKeyStore struct {
+// 	PrivateKey interface{}
+// }
+//
+// // GetPrivateKey returns the default private key used for signing.
+// func (d *DummyKeyStore) GetPrivateKey() (interface{}, error) {
+// 	if d.PrivateKey == nil {
+// 		return nil, fmt.Errorf("No default key")
+// 	}
+// 	return d.PrivateKey, nil
+// }
+//
+// // GetPrivateKeyByName gets a private key by name
+// func (d *DummyKeyStore) GetPrivateKeyByName(keyName string) (interface{}, error) {
+// 	if d.PrivateKey == nil {
+// 		return nil, fmt.Errorf("No default key")
+// 	}
+// 	if keyName != "default" {
+// 		return nil, fmt.Errorf("No key with that name")
+// 	}
+// 	return d.PrivateKey, nil
+// }
 
-// GetPrivateKey returns the default private key used for signing.
-func (d *DummyKeyStore) GetPrivateKey() (interface{}, error) {
-	if d.PrivateKey == nil {
-		return nil, fmt.Errorf("No default key")
-	}
-	return d.PrivateKey, nil
-}
+// func NewDummyKeyStore() *DummyKeyStore {
+// 	key, err := rsa.GenerateKey(rand.Reader, 2048)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	return &DummyKeyStore{
+// 		PrivateKey: key,
+// 	}
+// }
 
-// GetPrivateKeyByName gets a private key by name
-func (d *DummyKeyStore) GetPrivateKeyByName(keyName string) (interface{}, error) {
-	if d.PrivateKey == nil {
-		return nil, fmt.Errorf("No default key")
-	}
-	if keyName != "default" {
-		return nil, fmt.Errorf("No key with that name")
-	}
-	return d.PrivateKey, nil
-}
-
-func NewDummyKeyStore() *DummyKeyStore {
-	key, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		panic(err)
-	}
-	return &DummyKeyStore{
-		PrivateKey: key,
-	}
-}
-
-func NewMockOAuth2Provider(clients []*oauth2.Client) *oauth2.AuthProvider {
-	cs := NewMockClientService()
-	for _, client := range clients {
-		cs.Clients[client.ClientID] = client
-	}
-	return &oauth2.AuthProvider{
-		ClientService: cs,
-		TokenService: &DummyTokenService{
-			Tokens: map[string]*oauth2.AuthToken{},
-		},
-		KeyStore:                  NewDummyKeyStore(),
-		SigningMethod:             "RS512",
-		AuthCodeLength:            10,
-		RefreshTokenLength:        30,
-		AccessTokenValidityPeriod: 3600 * 1000,
-	}
-}
+// func NewMockOAuth2Provider(clients []*oauth2.Client) *oauth2.AuthProvider {
+// 	cs := NewMockClientService()
+// 	for _, client := range clients {
+// 		cs.Clients[client.ClientID] = client
+// 	}
+// 	return &oauth2.AuthProvider{
+// 		ClientService: cs,
+// 		TokenService: &DummyTokenService{
+// 			Tokens: map[string]*oauth2.AuthToken{},
+// 		},
+// 		KeyStore:                  NewDummyKeyStore(),
+// 		SigningMethod:             "RS512",
+// 		AuthCodeLength:            10,
+// 		RefreshTokenLength:        30,
+// 		AccessTokenValidityPeriod: 3600 * 1000,
+// 	}
+// }
 
 type MockUser struct {
 	oauth2.User
