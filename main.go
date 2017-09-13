@@ -45,9 +45,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	println(clientService)
-	println(tokenService)
-	println(userService)
 
 	authKey, encyptKey, err := loadSessionKeys(&serverConfig.SessionConfig)
 	if err != nil {
