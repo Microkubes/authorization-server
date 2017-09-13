@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/jwt-issuer/store"
 	"github.com/JormungandrK/microservice-security/jwt"
+	"github.com/JormungandrK/microservice-security/tools"
 	"github.com/afex/hystrix-go/hystrix"
 	uuid "github.com/satori/go.uuid"
 )
@@ -59,7 +59,7 @@ func ExecRequest(action string, req *http.Request, client *http.Client) (*http.R
 
 // NewSystemSignature generates a common Signature from a given configuration. This Signature is
 // issued with system authentication and used for communication with other microservices on the platform.
-func NewSystemSignature(serverName string, securityConf config.Security, keyStore store.KeyStore) (*Signature, error) {
+func NewSystemSignature(serverName string, securityConf config.Security, keyStore tools.KeyStore) (*Signature, error) {
 	claims := map[string]interface{}{
 		"userId":   "system",
 		"username": "system",
