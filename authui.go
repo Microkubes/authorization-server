@@ -40,7 +40,6 @@ func (c *AuthUIController) ConfirmAuthorization(ctx *app.ConfirmAuthorizationAut
 	err := c.SessionStore.GetAs("confirmation", &confirmation, ctx.Request)
 	if err != nil {
 		c.showError("Invalid parameters. Your confirmation is missing. Please use a browser to login to the system and authroize the client app.", 400, rw, req)
-		//return ctx.BadRequest(fmt.Errorf("invalid-parameters"))
 		return nil
 	}
 
@@ -49,13 +48,11 @@ func (c *AuthUIController) ConfirmAuthorization(ctx *app.ConfirmAuthorizationAut
 		c.SessionStore.SetValue("confirmation", confirmation, ctx.ResponseWriter, ctx.Request)
 		_, err = c.ClientService.ConfirmClientAuth(authObj.UserID, confirmation.ClientID)
 		if err != nil {
-			//return ctx.InternalServerError(err)
 			c.showError(fmt.Sprintf("A server error has occured. %s", err.Error()), 500, rw, req)
 			return nil
 		}
 
 		// Go back to the original authorization URL
-		fmt.Println("CONFIRM -> AUTH_REQ -> ", confirmation.AuthorizeRequest)
 		ctx.ResponseWriter.Header().Set("Location", confirmation.AuthorizeRequest)
 		ctx.ResponseWriter.WriteHeader(302)
 		return nil
@@ -79,34 +76,25 @@ func (c *AuthUIController) PromptAuthorization(ctx *app.PromptAuthorizationAuthU
 	rw := ctx.ResponseWriter
 	req := ctx.Request
 
-	fmt.Println("Promt Auth...")
 	authObj := auth.GetAuth(ctx.Context)
 	clientID, err := c.SessionStore.Get("clientId", ctx.Request)
 	if err != nil {
-		//return ctx.InternalServerError(err)
 		c.showError(fmt.Sprintf("A server error has occured. %s", err.Error()), 500, rw, req)
 		return nil
 	}
 	if clientID == nil {
-		fmt.Println("No client ID")
-		//return ctx.BadRequest(fmt.Errorf("Invalid client"))
 		c.showError("We haven't received the ID of the app.", 400, rw, req)
 		return nil
 	}
 	client, err := c.ClientService.GetClient(*clientID)
 	if err != nil {
-		fmt.Println("Err3", err)
-		//return ctx.InternalServerError(err)
 		c.showError(fmt.Sprintf("A server error has occured. %s", err.Error()), 500, rw, req)
 		return nil
 	}
 	if client == nil {
-		fmt.Println("Client does not exist: ", clientID)
-		//return ctx.BadRequest(fmt.Errorf("Invalid client"))
 		c.showError("It seems that you're using a wrong app ID. Please try with the correct app id.", 400, rw, req)
 		return nil
 	}
-	fmt.Println("Rendering template")
 	c.renderTemplate("public/auth/prompt-auth.html", map[interface{}]interface{}{
 		"client": client,
 		"user":   authObj,

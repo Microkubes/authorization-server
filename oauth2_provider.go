@@ -39,15 +39,12 @@ func NewOauth2ProviderController(service *goa.Service, provider oauth2.Provider,
 // Authorize runs the authorize action.
 func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderContext) error {
 	// Oauth2ProviderController_Authorize: start_implement
-	fmt.Println("Ajdeee")
 	authObj := auth.GetAuth(ctx.Context)
 	if authObj == nil {
-		fmt.Println("No auth?", authObj)
 		return ctx.BadRequest(&app.OAuth2ErrorMedia{
-			Error: "Authentication is required",
+			Error: "invalid_request",
 		})
 	}
-	fmt.Println("Checking client authorization...")
 
 	confirmation := security.AuthorizeClientData{}
 	c.SessionStore.GetAs("confirmation", &confirmation, ctx.Request)
@@ -56,7 +53,6 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 		confirmation.ClientID = ctx.ClientID
 		confirmation.AuthorizeRequest = fmt.Sprintf("%s?%s", ctx.Request.URL.Path, ctx.Request.URL.Query().Encode())
 		c.SessionStore.SetValue("confirmation", confirmation, ctx.ResponseWriter, ctx.Request)
-		fmt.Println("Not authorized. Prompt client...")
 		//redirect to confirmation URL
 		ctx.ResponseWriter.Header().Set("Location", c.ConfirmAuthorizationURL)
 		ctx.ResponseWriter.WriteHeader(302)
@@ -69,7 +65,6 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 	}
 
 	redirectURL := ctx.ResponseWriter.Header().Get("Location")
-	fmt.Printf("Redirect URL -> %s\n", redirectURL)
 	u, err := url.Parse(redirectURL)
 	if err != nil {
 		return err
@@ -89,10 +84,8 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 // GetToken runs the get_token action.
 func (c *Oauth2ProviderController) GetToken(ctx *app.GetTokenOauth2ProviderContext) error {
 	// Oauth2ProviderController_GetToken: start_implement
-
 	// Put your logic here
 	p := ctx.Payload
-
 	return c.ProviderController.GetToken(ctx, ctx.ResponseWriter, p.GrantType, p.Code, p.RedirectURI, p.RefreshToken, p.Scope)
 
 	// Oauth2ProviderController_GetToken: end_implement

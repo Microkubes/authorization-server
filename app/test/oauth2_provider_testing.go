@@ -14,14 +14,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/JormungandrK/authorization-server/app"
-	"github.com/goadesign/goa"
-	"github.com/goadesign/goa/goatest"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+
+	"github.com/JormungandrK/authorization-server/app"
+	"github.com/goadesign/goa"
+	"github.com/goadesign/goa/goatest"
+	goaoauth2app "github.com/goadesign/oauth2/app"
 )
 
 // AuthorizeOauth2ProviderBadRequest runs the method Authorize of the given controller with the given parameters.
@@ -236,7 +238,7 @@ func AuthorizeOauth2ProviderFound(t goatest.TInterface, ctx context.Context, ser
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetTokenOauth2ProviderBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.Oauth2ProviderController, payload *app.TokenPayload) (http.ResponseWriter, *app.OAuth2ErrorMedia) {
+func GetTokenOauth2ProviderBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.Oauth2ProviderController, payload *app.TokenPayload) (http.ResponseWriter, *goaoauth2app.OAuth2ErrorMedia) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -295,10 +297,10 @@ func GetTokenOauth2ProviderBadRequest(t goatest.TInterface, ctx context.Context,
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
 	}
-	var mt *app.OAuth2ErrorMedia
+	var mt *goaoauth2app.OAuth2ErrorMedia
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.OAuth2ErrorMedia)
+		mt, _ok = resp.(*goaoauth2app.OAuth2ErrorMedia)
 		if !_ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.OAuth2ErrorMedia", resp, resp)
 		}
@@ -316,7 +318,7 @@ func GetTokenOauth2ProviderBadRequest(t goatest.TInterface, ctx context.Context,
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetTokenOauth2ProviderOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.Oauth2ProviderController, payload *app.TokenPayload) (http.ResponseWriter, *app.TokenMedia) {
+func GetTokenOauth2ProviderOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.Oauth2ProviderController, payload *app.TokenPayload) (http.ResponseWriter, *goaoauth2app.TokenMedia) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -375,10 +377,10 @@ func GetTokenOauth2ProviderOK(t goatest.TInterface, ctx context.Context, service
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.TokenMedia
+	var mt *goaoauth2app.TokenMedia
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.TokenMedia)
+		mt, _ok = resp.(*goaoauth2app.TokenMedia)
 		if !_ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.TokenMedia", resp, resp)
 		}
