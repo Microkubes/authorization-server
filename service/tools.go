@@ -44,7 +44,7 @@ func NewSignedRequest(method string, urlStr string, body io.Reader, signature Si
 
 // ExecRequest executes an HTTP request to a given service.
 // The execution is wrapped in a hystrix command with the name set to the "action" argument.
-func ExecRequest(action string, req *http.Request, client *http.Client) (*http.Response, error) {
+func ExecRequest(action string, req *http.Request, client *http.Client, ignoreCodes ...int) (*http.Response, error) {
 	var resp *http.Response
 	err := hystrix.Do(action, func() error {
 		r, e := client.Do(req)
@@ -52,6 +52,21 @@ func ExecRequest(action string, req *http.Request, client *http.Client) (*http.R
 			return e
 		}
 		resp = r
+
+		if r.StatusCode != 200 {
+			println("!! Not 200")
+			if ignoreCodes != nil && len(ignoreCodes) > 0 {
+				println("Checking ignore codes -> ")
+				for _, code := range ignoreCodes {
+					println("    -> ", r.StatusCode, code)
+					if r.StatusCode == code {
+						return nil
+					}
+				}
+			}
+
+			return fmt.Errorf(r.Status)
+		}
 		return nil
 	}, nil)
 	return resp, err

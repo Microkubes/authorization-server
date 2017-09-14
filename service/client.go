@@ -43,7 +43,7 @@ func (c *ClientServiceAPI) GetClient(clientID string) (*oauth2.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := ExecRequest("microservice-apps", req, c.Client)
+	resp, err := ExecRequest("microservice-apps", req, c.Client, 404)
 	if err != nil {
 		return nil, err
 	}

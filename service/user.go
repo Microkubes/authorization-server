@@ -35,7 +35,7 @@ func (u *UserServiceAPI) VerifyUser(username, password string) (*oauth2.User, er
 	if err != nil {
 		return nil, err
 	}
-	resp, err := ExecRequest("user-microservice", req, u.Client)
+	resp, err := ExecRequest("user-microservice", req, u.Client, 404)
 	if err != nil {
 		return nil, err
 	}
