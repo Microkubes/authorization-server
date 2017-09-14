@@ -33,7 +33,6 @@ func NewAuthUIController(service *goa.Service, sessionStore security.SessionStor
 func (c *AuthUIController) ConfirmAuthorization(ctx *app.ConfirmAuthorizationAuthUIContext) error {
 	rw := ctx.ResponseWriter
 	req := ctx.Request
-	authObj := auth.GetAuth(ctx.Context)
 
 	confirmation := security.AuthorizeClientData{}
 
@@ -46,11 +45,6 @@ func (c *AuthUIController) ConfirmAuthorization(ctx *app.ConfirmAuthorizationAut
 	if ctx.Confirmed != nil && *ctx.Confirmed {
 		confirmation.Confirmed = true
 		c.SessionStore.SetValue("confirmation", confirmation, ctx.ResponseWriter, ctx.Request)
-		_, err = c.ClientService.ConfirmClientAuth(authObj.UserID, confirmation.ClientID)
-		if err != nil {
-			c.showError(fmt.Sprintf("A server error has occured. %s", err.Error()), 500, rw, req)
-			return nil
-		}
 
 		// Go back to the original authorization URL
 		ctx.ResponseWriter.Header().Set("Location", confirmation.AuthorizeRequest)
@@ -107,12 +101,10 @@ func (c *AuthUIController) PromptAuthorization(ctx *app.PromptAuthorizationAuthU
 func (c *AuthUIController) renderTemplate(templateFile string, data interface{}, rw http.ResponseWriter, req *http.Request) error {
 	tplContent, err := loadTemplateFile(templateFile)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	t, err := template.New(templateFile).Parse(tplContent)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	rw.WriteHeader(200)

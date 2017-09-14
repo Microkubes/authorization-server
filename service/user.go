@@ -37,7 +37,6 @@ func (u *UserServiceAPI) VerifyUser(username, password string) (*oauth2.User, er
 	}
 	resp, err := ExecRequest("user-microservice", req, u.Client)
 	if err != nil {
-		println("Error:", err)
 		return nil, err
 	}
 	if resp.StatusCode == 404 {

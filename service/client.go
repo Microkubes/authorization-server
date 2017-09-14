@@ -113,7 +113,7 @@ func (c *ClientServiceAPI) ConfirmClientAuth(userID, clientID string) (*oauth2.C
 
 // UpdateUserData updates the user data of the clientAuth identified by the client ID and auth code.
 func (c *ClientServiceAPI) UpdateUserData(clientID, code, userID, userData string) error {
-	ca, err := c.ClientAuthRepository.GetWithUserID(clientID, userID)
+	ca, err := c.ClientAuthRepository.GetWithCode(clientID, code)
 	if err != nil {
 		return err
 	}

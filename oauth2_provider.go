@@ -38,7 +38,7 @@ func NewOauth2ProviderController(service *goa.Service, provider oauth2.Provider,
 
 // Authorize runs the authorize action.
 func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderContext) error {
-	// Oauth2ProviderController_Authorize: start_implement
+	clientID := ctx.ClientID
 	authObj := auth.GetAuth(ctx.Context)
 	if authObj == nil {
 		return ctx.BadRequest(&app.OAuth2ErrorMedia{
@@ -74,21 +74,12 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 	if err != nil {
 		return err
 	}
-	err = c.ClientService.UpdateUserData(ctx.ClientID, code, authObj.UserID, string(userData))
-
+	err = c.ClientService.UpdateUserData(clientID, code, authObj.UserID, string(userData))
 	return err
-	// Oauth2ProviderController_Authorize: end_implement
-	//return nil
 }
 
 // GetToken runs the get_token action.
 func (c *Oauth2ProviderController) GetToken(ctx *app.GetTokenOauth2ProviderContext) error {
-	// Oauth2ProviderController_GetToken: start_implement
-	// Put your logic here
 	p := ctx.Payload
 	return c.ProviderController.GetToken(ctx, ctx.ResponseWriter, p.GrantType, p.Code, p.RedirectURI, p.RefreshToken, p.Scope)
-
-	// Oauth2ProviderController_GetToken: end_implement
-	//res := &app.TokenMedia{}
-	//return ctx.OK(res)
 }
