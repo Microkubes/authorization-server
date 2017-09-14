@@ -130,7 +130,7 @@ func TestGetTokenOauth2ProviderOK(t *testing.T) {
 				ClientID: "client-001",
 				Name:     "client 1",
 				Secret:   "password",
-				Website:  "http://exxample.com",
+				Website:  "http://example.com",
 			},
 		},
 	}

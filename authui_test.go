@@ -69,11 +69,8 @@ func TestConfirmAuthorizationAuthUIInternalServerError(t *testing.T) {
 	}
 	authUIController := NewAuthUIController(service, sessionStore, clientService)
 
-	confirmed := true
-	_, err := test.ConfirmAuthorizationAuthUIInternalServerError(t, auth.SetAuth(context.Background(), &authObj), service, authUIController, &confirmed)
-	if err != nil {
-		t.Fatal(err)
-	}
+	confirmed := false
+	test.ConfirmAuthorizationAuthUIInternalServerError(t, auth.SetAuth(context.Background(), &authObj), service, authUIController, &confirmed)
 }
 
 func TestPromptAuthorizationAuthUIBadRequest(t *testing.T) {
