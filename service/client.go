@@ -10,8 +10,8 @@ import (
 
 	"github.com/JormungandrK/authorization-server/config"
 	"github.com/JormungandrK/authorization-server/db"
-	"github.com/JormungandrK/jwt-issuer/store"
 	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/JormungandrK/microservice-security/tools"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -43,7 +43,7 @@ func (c *ClientServiceAPI) GetClient(clientID string) (*oauth2.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := ExecRequest("microservice-apps", req, c.Client)
+	resp, err := ExecRequest("microservice-apps", req, c.Client, 404)
 	if err != nil {
 		return nil, err
 	}
@@ -68,6 +68,7 @@ func (c *ClientServiceAPI) VerifyClientCredentials(clientID, clientSecret string
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := ExecRequest("microservice-apps", req, c.Client)
 	if err != nil {
@@ -112,7 +113,7 @@ func (c *ClientServiceAPI) ConfirmClientAuth(userID, clientID string) (*oauth2.C
 
 // UpdateUserData updates the user data of the clientAuth identified by the client ID and auth code.
 func (c *ClientServiceAPI) UpdateUserData(clientID, code, userID, userData string) error {
-	ca, err := c.ClientAuthRepository.GetWithUserID(clientID, userID)
+	ca, err := c.ClientAuthRepository.GetWithCode(clientID, code)
 	if err != nil {
 		return err
 	}
@@ -131,7 +132,7 @@ func (c *ClientServiceAPI) DeleteClientAuth(clientID, code string) error {
 }
 
 // NewClientService creates new oauth2.ClientService.
-func NewClientService(serverConfig *config.ServerConfig, client *http.Client, keyStore store.KeyStore) (*ClientServiceAPI, func(), error) {
+func NewClientService(serverConfig *config.ServerConfig, client *http.Client, keyStore tools.KeyStore) (*ClientServiceAPI, func(), error) {
 	signature, err := NewClientSignature(serverConfig.ServerName, serverConfig.Security, keyStore)
 	if err != nil {
 		return nil, nil, err
@@ -159,7 +160,7 @@ func NewClientService(serverConfig *config.ServerConfig, client *http.Client, ke
 }
 
 // NewClientSignature builds new Signature containing the data and claims for signing the JWT tokens.
-func NewClientSignature(serverName string, securityConf config.Security, keyStore store.KeyStore) (*Signature, error) {
+func NewClientSignature(serverName string, securityConf config.Security, keyStore tools.KeyStore) (*Signature, error) {
 	claims := map[string]interface{}{
 		"userId":   "system",
 		"username": "system",

@@ -49,7 +49,7 @@ func (t *OAuth2TokenService) GetTokenForClient(userID, clientID string) (*oauth2
 
 func isExpired(token *oauth2.AuthToken) bool {
 	now := time.Now()
-	tokenValidUntil := time.Unix(0, token.IssuedAt).Add(time.Duration(token.ValidFor) * time.Millisecond)
+	tokenValidUntil := time.Unix(token.IssuedAt, 0).Add(time.Duration(token.ValidFor) * time.Millisecond)
 	return now.After(tokenValidUntil)
 }
 

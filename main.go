@@ -11,8 +11,8 @@ import (
 	"github.com/JormungandrK/authorization-server/config"
 	"github.com/JormungandrK/authorization-server/security"
 	svc "github.com/JormungandrK/authorization-server/service"
-	"github.com/JormungandrK/jwt-issuer/store"
 	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/JormungandrK/microservice-security/tools"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	goaoauth2 "github.com/goadesign/oauth2"
@@ -22,7 +22,7 @@ import (
 
 func main() {
 	serverConfig := loadServerConfig()
-	keyStore, err := store.NewFileKeyStore(serverConfig.Security.Keys)
+	keyStore, err := tools.NewFileKeyStore(serverConfig.Security.Keys)
 	if err != nil {
 		panic(err)
 	}
@@ -45,9 +45,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	println(clientService)
-	println(tokenService)
-	println(userService)
 
 	authKey, encyptKey, err := loadSessionKeys(&serverConfig.SessionConfig)
 	if err != nil {

@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/jwt-issuer/store"
 	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/JormungandrK/microservice-security/tools"
 )
 
 // UserServiceAPI holds the data for implementation of oauth2.UserService.
@@ -35,9 +35,8 @@ func (u *UserServiceAPI) VerifyUser(username, password string) (*oauth2.User, er
 	if err != nil {
 		return nil, err
 	}
-	resp, err := ExecRequest("user-microservice", req, u.Client)
+	resp, err := ExecRequest("user-microservice", req, u.Client, 404)
 	if err != nil {
-		println("Error:", err)
 		return nil, err
 	}
 	if resp.StatusCode == 404 {
@@ -54,7 +53,7 @@ func (u *UserServiceAPI) VerifyUser(username, password string) (*oauth2.User, er
 }
 
 // NewUserService crates new UserServiceAPI from the ServerConfig.
-func NewUserService(serverConfig *config.ServerConfig, client *http.Client, keyStore store.KeyStore) (*UserServiceAPI, error) {
+func NewUserService(serverConfig *config.ServerConfig, client *http.Client, keyStore tools.KeyStore) (*UserServiceAPI, error) {
 	signature, err := NewSystemSignature(serverConfig.ServerName, serverConfig.Security, keyStore)
 	if err != nil {
 		return nil, err

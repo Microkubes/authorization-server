@@ -63,6 +63,9 @@ var Forbidden = goa.NewErrorClass("forbidden", 403)
 // ServerError is a generic HTTP server error.
 var ServerError = goa.NewErrorClass("server_error", 500)
 
+// BadRequest is a generic bad request error.
+var BadRequest = goa.NewErrorClass("bad_request", 400)
+
 // FormLoginMiddleware creates new goa.Middleware for security and form-base authentication.
 func FormLoginMiddleware(scheme *FormLoginScheme, userService oauth2.UserService, sessionStore SessionStore) goa.Middleware {
 	return func(h goa.Handler) goa.Handler {
@@ -183,6 +186,9 @@ func attemptFormLogin(ctx context.Context, scheme *FormLoginScheme, userService 
 		if username == "" || password == "" {
 			return ctx, Unauthorized("Credentials required")
 		}
+		if err := validateCredentials(username, password); err != nil {
+			return ctx, BadRequest(err)
+		}
 		userAuth, err := getUserAuthForCredentials(username, password, userService)
 		if err != nil {
 			return ctx, ServerError("Server Error", err)
@@ -194,6 +200,16 @@ func attemptFormLogin(ctx context.Context, scheme *FormLoginScheme, userService 
 		return ctx, nil
 	}
 	return ctx, nil
+}
+
+func validateCredentials(username, pass string) error {
+	if match, _ := regexp.MatchString("^([a-zA-Z0-9@]{4,30})$", username); !match {
+		return fmt.Errorf("you've entered invalid username")
+	}
+	if len(pass) < 6 {
+		return fmt.Errorf("yuo've entered invalid password")
+	}
+	return nil
 }
 
 // NewStoreOAuth2ParamsMiddleware creates goa.Middleware that stores the clientID in session.

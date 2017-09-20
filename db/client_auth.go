@@ -114,22 +114,23 @@ func (m *MongoDBClientAuthRepository) Save(clientAuth *oauth2.ClientAuth) (*oaut
 	}).One(&ca)
 
 	ca["userId"] = clientAuth.UserID
-	ca["clientId"] = clientAuth.ClientID
-	ca["code"] = clientAuth.Code
 	ca["scope"] = clientAuth.Scope
 	ca["generatedAt"] = clientAuth.GeneratedAt
 	ca["userData"] = clientAuth.UserData
 	ca["redirectUri"] = clientAuth.RedirectURI
 	ca["confirmed"] = clientAuth.Confirmed
 
-	if ID, ok := ca["_id"]; ok {
+	if _, ok := ca["clientId"]; ok {
 		err := m.collection.Update(bson.M{
-			"_id": ID,
+			"clientId": clientAuth.ClientID,
+			"code":     clientAuth.Code,
 		}, ca)
 		if err != nil {
 			return nil, err
 		}
 	} else {
+		ca["clientId"] = clientAuth.ClientID
+		ca["code"] = clientAuth.Code
 		err := m.collection.Insert(ca)
 		if err != nil {
 			return nil, err

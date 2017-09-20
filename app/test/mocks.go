@@ -1,9 +1,11 @@
-package service
+package test
 
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/JormungandrK/microservice-security/oauth2"
@@ -15,6 +17,7 @@ type DummyClientService struct {
 }
 
 func (d *DummyClientService) GetClient(clientID string) (*oauth2.Client, error) {
+	println("Get client: ", clientID)
 	cl, ok := d.Clients[clientID]
 	if !ok {
 		return nil, fmt.Errorf("Not found")
@@ -180,4 +183,55 @@ func (d *DummyUserService) VerifyUser(username, password string) (*oauth2.User, 
 		}
 	}
 	return nil, nil
+}
+
+type MockSessionStore struct {
+	values map[string]string
+}
+
+func (m *MockSessionStore) Get(key string, req *http.Request) (*string, error) {
+	v, ok := m.values[key]
+	if ok {
+		return &v, nil
+	}
+	return nil, nil
+}
+
+func (m *MockSessionStore) GetAs(key string, v interface{}, req *http.Request) error {
+	val, err := m.Get(key, req)
+	if err != nil {
+		return err
+	}
+	if val == nil {
+		return fmt.Errorf("no value found")
+	}
+	return json.Unmarshal([]byte(*val), v)
+}
+
+func (m *MockSessionStore) Set(key, value string, rw http.ResponseWriter, req *http.Request) error {
+	m.values[key] = value
+	return nil
+}
+
+func (m *MockSessionStore) SetValue(key string, value interface{}, rw http.ResponseWriter, req *http.Request) error {
+	data, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	m.Set(key, string(data), rw, req)
+	return nil
+}
+
+func (m *MockSessionStore) Clear(key string, rw http.ResponseWriter, req *http.Request) error {
+	_, ok := m.values[key]
+	if ok {
+		delete(m.values, key)
+	}
+	return nil
+}
+
+func NewMockSessionStore() *MockSessionStore {
+	return &MockSessionStore{
+		values: map[string]string{},
+	}
 }

@@ -26,7 +26,6 @@ func NewLoginController(service *goa.Service, sessionStore security.SessionStore
 // ShowLogin runs the showLogin action.
 func (c *LoginController) ShowLogin(ctx *app.ShowLoginLoginContext) error {
 	// LoginController_ShowLogin: start_implement
-	println("**LOGIN**")
 	loginError := map[string]interface{}{}
 	c.SessionStore.GetAs("loginError", &loginError, ctx.Request)
 
