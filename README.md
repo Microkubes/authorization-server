@@ -1,6 +1,11 @@
 OAuth2 Authorization Server
 ===========================
 
+[![Build](https://travis-ci.com/JormungandrK/authorization-server.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/JormungandrK/authorization-server)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/1a6769b9294e060ecd33/test_coverage)](https://codeclimate.com/repos/59b900fc7b2913029c001215/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/1a6769b9294e060ecd33/maintainability)](https://codeclimate.com/repos/59b900fc7b2913029c001215/maintainability)
+
+
 OAuth2 Authorization Server as a separate micro-service.
 
 # Installation
