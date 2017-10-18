@@ -25,9 +25,9 @@ before_install:
   - go get -u github.com/gorilla/securecookie
 
 before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter && ./cc-test-reporter format-coverage -t cobertura -o coverage.json coverage.xml
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
 
 script:
-  - gocov test github.com/JormungandrK/authorization-server/... | gocov-xml > coverage.xml
+  - gocov test github.com/JormungandrK/authorization-server/... | gocov-xml > coverage.xml && ./cc-test-reporter format-coverage -t cobertura -o coverage.json coverage.xml
   - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter upload-coverage -i coverage.json; fi
