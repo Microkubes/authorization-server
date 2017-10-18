@@ -21,7 +21,7 @@ RUN go get -u github.com/axw/gocov/gocov && \
     go get -u github.com/gorilla/securecookie
 
 RUN go get -u github.com/JormungandrK/microservice-tools && \
-    go get -u github.com/JormungandrK/microservice-security
+    go get -u github.com/JormungandrK/microservice-security/...
 
 COPY . /go/src/github.com/JormungandrK/authorization-server
 RUN go install github.com/JormungandrK/authorization-server
