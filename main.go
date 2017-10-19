@@ -13,6 +13,7 @@ import (
 	svc "github.com/JormungandrK/authorization-server/service"
 	"github.com/JormungandrK/microservice-security/oauth2"
 	"github.com/JormungandrK/microservice-security/tools"
+	"github.com/JormungandrK/microservice-tools/gateway"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	goaoauth2 "github.com/goadesign/oauth2"
@@ -67,6 +68,19 @@ func main() {
 		AccessTokenValidityPeriod: serverConfig.AccessTokenTTL,
 		ProviderName:              serverConfig.ServerName,
 	}
+
+	gatewayURL := os.Getenv("API_GATEWAY_URL")
+	if gatewayURL == "" {
+		gatewayURL = "http://localhost:8001"
+	}
+
+	registration := gateway.NewKongGateway(gatewayURL, &http.Client{}, &serverConfig.MicroserviceConfig)
+	err = registration.SelfRegister()
+	if err != nil {
+		panic(err)
+	}
+
+	defer registration.Unregister()
 
 	// Create service
 	service := goa.New("")
