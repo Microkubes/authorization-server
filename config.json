@@ -2,8 +2,8 @@
   "serverName": "Jormungandr Authorization Server",
   "security": {
     "keys": {
-      "default": "keys/default",
-      "system": "keys/system"
+      "default": "/run/secrets/default",
+      "system": "/run/secrets/system"
     },
     "signingMethod": "RS256",
     "issuer": "oauth2-auth-server"
@@ -11,17 +11,17 @@
   "microservice": {
     "name": "oauth2-auth-server",
     "port": 8080,
-    "virtual_host": "jwt.auth.jormugandr.org",
-    "hosts":["jwt.auth.jormugandr.org", "localhost"],
+    "virtual_host": "server.auth.jormugandr.org",
+    "hosts":["server.auth.jormugandr.org", "localhost"],
     "weight": 10,
     "slots": 5
   },
   "services": {
-    "userServiceURL": "http://localhost:8081/users",
-    "appsServiceURL": "http://localhost:8001/apps"
+    "userServiceURL": "http://kong:8000/users",
+    "appsServiceURL": "http://kong:8000/apps"
   },
   "database": {
-    "host": "localhost:27017",
+    "host": "mongo:27017",
     "database": "oauth2",
     "user": "authserver",
     "pass": "authserver"
