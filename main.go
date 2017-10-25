@@ -22,7 +22,15 @@ import (
 )
 
 func main() {
-	serverConfig := loadServerConfig()
+	// Create service
+	service := goa.New("")
+
+	serverConfig, err := loadServerConfig()
+	if err != nil {
+		service.LogError("config", "err", err)
+		return
+	}
+
 	keyStore, err := tools.NewFileKeyStore(serverConfig.Security.Keys)
 	if err != nil {
 		panic(err)
@@ -82,9 +90,6 @@ func main() {
 
 	defer registration.Unregister()
 
-	// Create service
-	service := goa.New("")
-
 	oauth2Scheme := app.NewOAuth2Security()
 
 	formLoginMiddleware := security.FormLoginMiddleware(&security.FormLoginScheme{
@@ -126,16 +131,16 @@ func main() {
 
 }
 
-func loadServerConfig() *config.ServerConfig {
+func loadServerConfig() (*config.ServerConfig, error) {
 	confFile := os.Getenv("SVC_CONFIG")
 	if confFile == "" {
-		confFile = "config.json"
+		confFile = "/run/secrets/microservice_authorization_server_config.json"
 	}
 	conf, err := config.LoadConfig(confFile)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return conf
+	return conf, nil
 }
 
 func loadSessionKeys(cfg *config.SessionConfig) (authKey []byte, encKey []byte, err error) {
