@@ -30,11 +30,9 @@ RUN go install github.com/JormungandrK/authorization-server
 FROM alpine:3.6
 
 COPY --from=build /go/bin/authorization-server /usr/local/bin/authorization-server
-COPY config.json /config.json
 COPY public /public
 EXPOSE 8080
 
-ENV SERVICE_CONFIG_FILE="config.json"
 ENV API_GATEWAY_URL="http://localhost:8001"
 
 CMD ["/usr/local/bin/authorization-server"]
