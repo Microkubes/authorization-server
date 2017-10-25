@@ -13,7 +13,6 @@
     "port": 8080,
     "paths": [ "/oauth2", "/auth" ],
     "virtual_host": "server.auth.jormugandr.org",
-    "hosts":["server.auth.jormugandr.org", "localhost"],
     "weight": 10,
     "slots": 5
   },
