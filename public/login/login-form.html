@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>Jormungandr: Sign In</title>
-  <link rel="stylesheet" type="text/css" href="/css/auth-server.css"/>
+  <link rel="stylesheet" type="text/css" href="/auth/css/auth-server.css"/>
 </head>
 <body>
   <div class="card">
@@ -9,7 +9,7 @@
       Welcome<br/>
       Please Sign In
     </div>
-    <form action="/check_credentials" method="POST" class="form">
+    <form action="/auth/check_credentials" method="POST" class="form">
       <div class="card-content">
         <div class="error">
           {{.error}}
