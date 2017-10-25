@@ -92,6 +92,9 @@ docker run \
 
 # Server Configuration
 
+Default path for the config file is /run/secrets/microservice_authorization_server_config.json. To change this set the 
+**SVC_CONFIG** env var.  
+
 ## General Server Properties
 
 * ```serverName``` - the name of the server. This is a user-friendly name of the server.
