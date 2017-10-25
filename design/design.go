@@ -15,12 +15,12 @@ var _ = Resource("public", func() {
 	Origin("*", func() {
 		Methods("GET", "POST")
 	})
-	Files("/css/*filepath", "public/css")
-	Files("/js/*filepath", "public/js")
+	Files("/oauth2/css/*filepath", "public/css")
+	Files("/oauth2/js/*filepath", "public/js")
 })
 
 var _ = Resource("authUI", func() {
-	BasePath("/auth")
+	BasePath("")
 	Action("promptAuthorization", func() {
 		Description("Prompt the user for client authorization")
 		Routing(GET("/authorize-client"))
@@ -40,10 +40,10 @@ var _ = Resource("authUI", func() {
 })
 
 var _ = Resource("login", func() {
-	BasePath("/login")
+	BasePath("")
 	Action("showLogin", func() {
 		Description("Shows a login screen")
-		Routing(GET(""))
+		Routing(GET("/login"))
 		Response(InternalServerError, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(Unauthorized, ErrorMedia)

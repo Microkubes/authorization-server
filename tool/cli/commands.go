@@ -97,7 +97,7 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp2 := new(ConfirmAuthorizationAuthuiCommand)
 	sub = &cobra.Command{
-		Use:   `authui ["/auth/confirm-authorization"]`,
+		Use:   `authui ["/confirm-authorization"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -136,7 +136,7 @@ Payload example:
 	}
 	tmp4 := new(PromptAuthorizationAuthuiCommand)
 	sub = &cobra.Command{
-		Use:   `authui ["/auth/authorize-client"]`,
+		Use:   `authui ["/authorize-client"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
@@ -340,17 +340,17 @@ func (cmd *DownloadCommand) Run(c *client.Client, args []string) error {
 	if rpath[0] != '/' {
 		rpath = "/" + rpath
 	}
-	if strings.HasPrefix(rpath, "/css/") {
+	if strings.HasPrefix(rpath, "/oauth2/css/") {
 		fnd = c.DownloadCSS
-		rpath = rpath[5:]
+		rpath = rpath[12:]
 		if outfile == "" {
 			_, outfile = path.Split(rpath)
 		}
 		goto found
 	}
-	if strings.HasPrefix(rpath, "/js/") {
+	if strings.HasPrefix(rpath, "/oauth2/js/") {
 		fnd = c.DownloadJs
-		rpath = rpath[4:]
+		rpath = rpath[11:]
 		if outfile == "" {
 			_, outfile = path.Split(rpath)
 		}
@@ -378,7 +378,7 @@ func (cmd *ConfirmAuthorizationAuthuiCommand) Run(c *client.Client, args []strin
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/auth/confirm-authorization"
+		path = "/confirm-authorization"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -413,7 +413,7 @@ func (cmd *PromptAuthorizationAuthuiCommand) Run(c *client.Client, args []string
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/auth/authorize-client"
+		path = "/authorize-client"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)

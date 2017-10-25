@@ -71,7 +71,7 @@ func main() {
 
 	gatewayURL := os.Getenv("API_GATEWAY_URL")
 	if gatewayURL == "" {
-		gatewayURL = "http://localhost:8001"
+		gatewayURL = "http://kong:8001"
 	}
 
 	registration := gateway.NewKongGateway(gatewayURL, &http.Client{}, &serverConfig.MicroserviceConfig)
@@ -93,7 +93,7 @@ func main() {
 		ConfirmURL:    "/auth/authorize-client",
 		UsernameField: "username",
 		PasswordField: "password",
-		IgnoreURLs:    []string{"/login", "/oauth2/token", "/css/.*", "/js/.*", "/favicon.ico"},
+		IgnoreURLs:    []string{"/login", "/token", "/css/.*", "/js/.*", "/favicon.ico"},
 	}, userService, sessionStore)
 
 	// Mount middleware
