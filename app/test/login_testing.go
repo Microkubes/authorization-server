@@ -49,7 +49,7 @@ func ShowLoginLoginBadRequest(t goatest.TInterface, ctx context.Context, service
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/login"),
+		Path: fmt.Sprintf("/auth/login"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -113,7 +113,7 @@ func ShowLoginLoginInternalServerError(t goatest.TInterface, ctx context.Context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/login"),
+		Path: fmt.Sprintf("/auth/login"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -177,7 +177,7 @@ func ShowLoginLoginUnauthorized(t goatest.TInterface, ctx context.Context, servi
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/login"),
+		Path: fmt.Sprintf("/auth/login"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {

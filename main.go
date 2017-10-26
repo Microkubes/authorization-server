@@ -93,12 +93,12 @@ func main() {
 	oauth2Scheme := app.NewOAuth2Security()
 
 	formLoginMiddleware := security.FormLoginMiddleware(&security.FormLoginScheme{
-		PostURL:       "/check_credentials",
-		LoginURL:      "/login",
+		PostURL:       "/auth/check_credentials",
+		LoginURL:      "/auth/login",
 		ConfirmURL:    "/auth/authorize-client",
 		UsernameField: "username",
 		PasswordField: "password",
-		IgnoreURLs:    []string{"/login", "/token", "/css/.*", "/js/.*", "/favicon.ico"},
+		IgnoreURLs:    []string{"/auth/login", "/oauth2/token", "/auth/css/.*", "/auth/js/.*", ".*/favicon.ico"},
 	}, userService, sessionStore)
 
 	// Mount middleware

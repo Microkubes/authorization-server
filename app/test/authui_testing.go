@@ -54,7 +54,7 @@ func ConfirmAuthorizationAuthUIBadRequest(t goatest.TInterface, ctx context.Cont
 		query["confirmed"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/confirm-authorization"),
+		Path:     fmt.Sprintf("/auth/confirm-authorization"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
@@ -128,7 +128,7 @@ func ConfirmAuthorizationAuthUIInternalServerError(t goatest.TInterface, ctx con
 		query["confirmed"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/confirm-authorization"),
+		Path:     fmt.Sprintf("/auth/confirm-authorization"),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
@@ -197,7 +197,7 @@ func PromptAuthorizationAuthUIBadRequest(t goatest.TInterface, ctx context.Conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/authorize-client"),
+		Path: fmt.Sprintf("/auth/authorize-client"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -261,7 +261,7 @@ func PromptAuthorizationAuthUIInternalServerError(t goatest.TInterface, ctx cont
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/authorize-client"),
+		Path: fmt.Sprintf("/auth/authorize-client"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {

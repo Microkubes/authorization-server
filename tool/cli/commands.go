@@ -97,7 +97,7 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp2 := new(ConfirmAuthorizationAuthuiCommand)
 	sub = &cobra.Command{
-		Use:   `authui ["/confirm-authorization"]`,
+		Use:   `authui ["/auth/confirm-authorization"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -136,7 +136,7 @@ Payload example:
 	}
 	tmp4 := new(PromptAuthorizationAuthuiCommand)
 	sub = &cobra.Command{
-		Use:   `authui ["/authorize-client"]`,
+		Use:   `authui ["/auth/authorize-client"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
@@ -150,7 +150,7 @@ Payload example:
 	}
 	tmp5 := new(ShowLoginLoginCommand)
 	sub = &cobra.Command{
-		Use:   `login ["/login"]`,
+		Use:   `login ["/auth/login"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -340,17 +340,17 @@ func (cmd *DownloadCommand) Run(c *client.Client, args []string) error {
 	if rpath[0] != '/' {
 		rpath = "/" + rpath
 	}
-	if strings.HasPrefix(rpath, "/oauth2/css/") {
+	if strings.HasPrefix(rpath, "/auth/css/") {
 		fnd = c.DownloadCSS
-		rpath = rpath[12:]
+		rpath = rpath[10:]
 		if outfile == "" {
 			_, outfile = path.Split(rpath)
 		}
 		goto found
 	}
-	if strings.HasPrefix(rpath, "/oauth2/js/") {
+	if strings.HasPrefix(rpath, "/auth/js/") {
 		fnd = c.DownloadJs
-		rpath = rpath[11:]
+		rpath = rpath[9:]
 		if outfile == "" {
 			_, outfile = path.Split(rpath)
 		}
@@ -378,7 +378,7 @@ func (cmd *ConfirmAuthorizationAuthuiCommand) Run(c *client.Client, args []strin
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/confirm-authorization"
+		path = "/auth/confirm-authorization"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -413,7 +413,7 @@ func (cmd *PromptAuthorizationAuthuiCommand) Run(c *client.Client, args []string
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/authorize-client"
+		path = "/auth/authorize-client"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -437,7 +437,7 @@ func (cmd *ShowLoginLoginCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/login"
+		path = "/auth/login"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)

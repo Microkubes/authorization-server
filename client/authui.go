@@ -21,7 +21,7 @@ import (
 // ConfirmAuthorizationAuthUIPath computes a request path to the confirmAuthorization action of authUI.
 func ConfirmAuthorizationAuthUIPath() string {
 
-	return fmt.Sprintf("/confirm-authorization")
+	return fmt.Sprintf("/auth/confirm-authorization")
 }
 
 // Confirm the authorization of the client
@@ -56,7 +56,7 @@ func (c *Client) NewConfirmAuthorizationAuthUIRequest(ctx context.Context, path 
 // PromptAuthorizationAuthUIPath computes a request path to the promptAuthorization action of authUI.
 func PromptAuthorizationAuthUIPath() string {
 
-	return fmt.Sprintf("/authorize-client")
+	return fmt.Sprintf("/auth/authorize-client")
 }
 
 // Prompt the user for client authorization

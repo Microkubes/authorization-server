@@ -28,7 +28,7 @@ func (c *Client) DownloadCSS(ctx context.Context, filename, dest string) (int64,
 	if scheme == "" {
 		scheme = "http"
 	}
-	p := path.Join("/oauth2/css/", filename)
+	p := path.Join("/auth/css/", filename)
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: p}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -63,7 +63,7 @@ func (c *Client) DownloadJs(ctx context.Context, filename, dest string) (int64, 
 	if scheme == "" {
 		scheme = "http"
 	}
-	p := path.Join("/oauth2/js/", filename)
+	p := path.Join("/auth/js/", filename)
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: p}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {

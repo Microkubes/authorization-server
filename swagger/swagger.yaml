@@ -156,7 +156,7 @@ definitions:
 info:
   version: ""
 paths:
-  /authorize-client:
+  /auth/authorize-client:
     get:
       description: Prompt the user for client authorization
       operationId: authUI#promptAuthorization
@@ -175,7 +175,7 @@ paths:
       summary: promptAuthorization authUI
       tags:
       - authUI
-  /confirm-authorization:
+  /auth/confirm-authorization:
     post:
       description: Confirm the authorization of the client
       operationId: authUI#confirmAuthorization
@@ -200,7 +200,45 @@ paths:
       summary: confirmAuthorization authUI
       tags:
       - authUI
-  /login:
+  /auth/css/{filepath}:
+    get:
+      operationId: public#/auth/css/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      summary: Download public/css
+  /auth/js/{filepath}:
+    get:
+      operationId: public#/auth/js/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      summary: Download public/js
+  /auth/login:
     get:
       description: Shows a login screen
       operationId: login#showLogin
@@ -274,44 +312,6 @@ paths:
       summary: authorize oauth2_provider
       tags:
       - oauth2_provider
-  /oauth2/css/{filepath}:
-    get:
-      operationId: public#/oauth2/css/*filepath
-      parameters:
-      - description: Relative file path
-        in: path
-        name: filepath
-        required: true
-        type: string
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-        "404":
-          description: File not found
-          schema:
-            $ref: '#/definitions/error'
-      summary: Download public/css
-  /oauth2/js/{filepath}:
-    get:
-      operationId: public#/oauth2/js/*filepath
-      parameters:
-      - description: Relative file path
-        in: path
-        name: filepath
-        required: true
-        type: string
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-        "404":
-          description: File not found
-          schema:
-            $ref: '#/definitions/error'
-      summary: Download public/js
   /oauth2/token:
     post:
       description: Get access token from authorization code or refresh token

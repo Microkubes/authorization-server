@@ -56,8 +56,8 @@ func MountAuthUIController(service *goa.Service, ctrl AuthUIController) {
 		}
 		return ctrl.ConfirmAuthorization(rctx)
 	}
-	service.Mux.Handle("POST", "/confirm-authorization", ctrl.MuxHandler("confirmAuthorization", h, nil))
-	service.LogInfo("mount", "ctrl", "AuthUI", "action", "ConfirmAuthorization", "route", "POST /confirm-authorization")
+	service.Mux.Handle("POST", "/auth/confirm-authorization", ctrl.MuxHandler("confirmAuthorization", h, nil))
+	service.LogInfo("mount", "ctrl", "AuthUI", "action", "ConfirmAuthorization", "route", "POST /auth/confirm-authorization")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -71,8 +71,8 @@ func MountAuthUIController(service *goa.Service, ctrl AuthUIController) {
 		}
 		return ctrl.PromptAuthorization(rctx)
 	}
-	service.Mux.Handle("GET", "/authorize-client", ctrl.MuxHandler("promptAuthorization", h, nil))
-	service.LogInfo("mount", "ctrl", "AuthUI", "action", "PromptAuthorization", "route", "GET /authorize-client")
+	service.Mux.Handle("GET", "/auth/authorize-client", ctrl.MuxHandler("promptAuthorization", h, nil))
+	service.LogInfo("mount", "ctrl", "AuthUI", "action", "PromptAuthorization", "route", "GET /auth/authorize-client")
 }
 
 // LoginController is the controller interface for the Login actions.
@@ -98,8 +98,8 @@ func MountLoginController(service *goa.Service, ctrl LoginController) {
 		}
 		return ctrl.ShowLogin(rctx)
 	}
-	service.Mux.Handle("GET", "/login", ctrl.MuxHandler("showLogin", h, nil))
-	service.LogInfo("mount", "ctrl", "Login", "action", "ShowLogin", "route", "GET /login")
+	service.Mux.Handle("GET", "/auth/login", ctrl.MuxHandler("showLogin", h, nil))
+	service.LogInfo("mount", "ctrl", "Login", "action", "ShowLogin", "route", "GET /auth/login")
 }
 
 // Oauth2ProviderController is the controller interface for the Oauth2Provider actions.
@@ -177,28 +177,28 @@ type PublicController interface {
 func MountPublicController(service *goa.Service, ctrl PublicController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/oauth2/css/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/oauth2/js/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/auth/css/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/auth/js/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
 
-	h = ctrl.FileHandler("/oauth2/css/*filepath", "public/css")
+	h = ctrl.FileHandler("/auth/css/*filepath", "public/css")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/oauth2/css/*filepath", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/css", "route", "GET /oauth2/css/*filepath")
+	service.Mux.Handle("GET", "/auth/css/*filepath", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/css", "route", "GET /auth/css/*filepath")
 
-	h = ctrl.FileHandler("/oauth2/js/*filepath", "public/js")
+	h = ctrl.FileHandler("/auth/js/*filepath", "public/js")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/oauth2/js/*filepath", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/js", "route", "GET /oauth2/js/*filepath")
+	service.Mux.Handle("GET", "/auth/js/*filepath", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/js", "route", "GET /auth/js/*filepath")
 
-	h = ctrl.FileHandler("/oauth2/css/", "public/css/index.html")
+	h = ctrl.FileHandler("/auth/css/", "public/css/index.html")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/oauth2/css/", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/css/index.html", "route", "GET /oauth2/css/")
+	service.Mux.Handle("GET", "/auth/css/", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/css/index.html", "route", "GET /auth/css/")
 
-	h = ctrl.FileHandler("/oauth2/js/", "public/js/index.html")
+	h = ctrl.FileHandler("/auth/js/", "public/js/index.html")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/oauth2/js/", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/js/index.html", "route", "GET /oauth2/js/")
+	service.Mux.Handle("GET", "/auth/js/", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/js/index.html", "route", "GET /auth/js/")
 }
 
 // handlePublicOrigin applies the CORS response headers corresponding to the origin.
