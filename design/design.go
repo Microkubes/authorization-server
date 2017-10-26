@@ -15,8 +15,8 @@ var _ = Resource("public", func() {
 	Origin("*", func() {
 		Methods("GET", "POST")
 	})
-	Files("/css/*filepath", "public/css")
-	Files("/js/*filepath", "public/js")
+	Files("/auth/css/*filepath", "public/css")
+	Files("/auth/js/*filepath", "public/js")
 })
 
 var _ = Resource("authUI", func() {
@@ -40,7 +40,7 @@ var _ = Resource("authUI", func() {
 })
 
 var _ = Resource("login", func() {
-	BasePath("/login")
+	BasePath("/auth/login")
 	Action("showLogin", func() {
 		Description("Shows a login screen")
 		Routing(GET(""))

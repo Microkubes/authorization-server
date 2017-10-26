@@ -20,7 +20,7 @@ import (
 // ShowLoginLoginPath computes a request path to the showLogin action of login.
 func ShowLoginLoginPath() string {
 
-	return fmt.Sprintf("/login")
+	return fmt.Sprintf("/auth/login")
 }
 
 // Shows a login screen

@@ -150,7 +150,7 @@ Payload example:
 	}
 	tmp5 := new(ShowLoginLoginCommand)
 	sub = &cobra.Command{
-		Use:   `login ["/login"]`,
+		Use:   `login ["/auth/login"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -340,17 +340,17 @@ func (cmd *DownloadCommand) Run(c *client.Client, args []string) error {
 	if rpath[0] != '/' {
 		rpath = "/" + rpath
 	}
-	if strings.HasPrefix(rpath, "/css/") {
+	if strings.HasPrefix(rpath, "/auth/css/") {
 		fnd = c.DownloadCSS
-		rpath = rpath[5:]
+		rpath = rpath[10:]
 		if outfile == "" {
 			_, outfile = path.Split(rpath)
 		}
 		goto found
 	}
-	if strings.HasPrefix(rpath, "/js/") {
+	if strings.HasPrefix(rpath, "/auth/js/") {
 		fnd = c.DownloadJs
-		rpath = rpath[4:]
+		rpath = rpath[9:]
 		if outfile == "" {
 			_, outfile = path.Split(rpath)
 		}
@@ -437,7 +437,7 @@ func (cmd *ShowLoginLoginCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/login"
+		path = "/auth/login"
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)

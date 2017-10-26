@@ -200,9 +200,9 @@ paths:
       summary: confirmAuthorization authUI
       tags:
       - authUI
-  /css/{filepath}:
+  /auth/css/{filepath}:
     get:
-      operationId: public#/css/*filepath
+      operationId: public#/auth/css/*filepath
       parameters:
       - description: Relative file path
         in: path
@@ -219,9 +219,9 @@ paths:
           schema:
             $ref: '#/definitions/error'
       summary: Download public/css
-  /js/{filepath}:
+  /auth/js/{filepath}:
     get:
-      operationId: public#/js/*filepath
+      operationId: public#/auth/js/*filepath
       parameters:
       - description: Relative file path
         in: path
@@ -238,7 +238,7 @@ paths:
           schema:
             $ref: '#/definitions/error'
       summary: Download public/js
-  /login:
+  /auth/login:
     get:
       description: Shows a login screen
       operationId: login#showLogin

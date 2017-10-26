@@ -98,8 +98,8 @@ func MountLoginController(service *goa.Service, ctrl LoginController) {
 		}
 		return ctrl.ShowLogin(rctx)
 	}
-	service.Mux.Handle("GET", "/login", ctrl.MuxHandler("showLogin", h, nil))
-	service.LogInfo("mount", "ctrl", "Login", "action", "ShowLogin", "route", "GET /login")
+	service.Mux.Handle("GET", "/auth/login", ctrl.MuxHandler("showLogin", h, nil))
+	service.LogInfo("mount", "ctrl", "Login", "action", "ShowLogin", "route", "GET /auth/login")
 }
 
 // Oauth2ProviderController is the controller interface for the Oauth2Provider actions.
@@ -177,28 +177,28 @@ type PublicController interface {
 func MountPublicController(service *goa.Service, ctrl PublicController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/css/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/js/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/auth/css/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/auth/js/*filepath", ctrl.MuxHandler("preflight", handlePublicOrigin(cors.HandlePreflight()), nil))
 
-	h = ctrl.FileHandler("/css/*filepath", "public/css")
+	h = ctrl.FileHandler("/auth/css/*filepath", "public/css")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/css/*filepath", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/css", "route", "GET /css/*filepath")
+	service.Mux.Handle("GET", "/auth/css/*filepath", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/css", "route", "GET /auth/css/*filepath")
 
-	h = ctrl.FileHandler("/js/*filepath", "public/js")
+	h = ctrl.FileHandler("/auth/js/*filepath", "public/js")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/js/*filepath", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/js", "route", "GET /js/*filepath")
+	service.Mux.Handle("GET", "/auth/js/*filepath", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/js", "route", "GET /auth/js/*filepath")
 
-	h = ctrl.FileHandler("/css/", "public/css/index.html")
+	h = ctrl.FileHandler("/auth/css/", "public/css/index.html")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/css/", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/css/index.html", "route", "GET /css/")
+	service.Mux.Handle("GET", "/auth/css/", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/css/index.html", "route", "GET /auth/css/")
 
-	h = ctrl.FileHandler("/js/", "public/js/index.html")
+	h = ctrl.FileHandler("/auth/js/", "public/js/index.html")
 	h = handlePublicOrigin(h)
-	service.Mux.Handle("GET", "/js/", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Public", "files", "public/js/index.html", "route", "GET /js/")
+	service.Mux.Handle("GET", "/auth/js/", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Public", "files", "public/js/index.html", "route", "GET /auth/js/")
 }
 
 // handlePublicOrigin applies the CORS response headers corresponding to the origin.
