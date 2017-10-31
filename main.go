@@ -132,7 +132,7 @@ func main() {
 }
 
 func loadServerConfig() (*config.ServerConfig, error) {
-	confFile := os.Getenv("SVC_CONFIG")
+	confFile := os.Getenv("SERVICE_CONFIG_FILE")
 	if confFile == "" {
 		confFile = "/run/secrets/microservice_authorization_server_config.json"
 	}
