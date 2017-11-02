@@ -240,7 +240,7 @@ https://api.jormungandr.org/login
 ```
 Here the user is shown a login form.
 
-The user enter his/hers username and password and signs in.
+The user enter his/hers email and password and signs in.
 
 Then, Jormungandr redirects the user to:
 

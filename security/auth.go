@@ -3,6 +3,7 @@ package security
 import (
 	"fmt"
 	"net/http"
+	"net/mail"
 	"regexp"
 	"strings"
 
@@ -24,8 +25,8 @@ type FormLoginScheme struct {
 
 	ConfirmURL string
 
-	// UsernameField is the name of the input field (and POST parameter) for the username user credential.
-	UsernameField string
+	// EmailField is the name of the input field (and POST parameter) for the email user credential.
+	EmailField string
 
 	//  PasswordField is the name of the input field (and POST parameter) for the password user credential.
 	PasswordField string
@@ -161,8 +162,8 @@ func clearRedirectURL(store SessionStore, req *http.Request, rw http.ResponseWri
 	return store.Clear(SessionRedirectKey, rw, req)
 }
 
-func getUserAuthForCredentials(username, password string, userService oauth2.UserService) (*auth.Auth, error) {
-	user, err := userService.VerifyUser(username, password)
+func getUserAuthForCredentials(email, password string, userService oauth2.UserService) (*auth.Auth, error) {
+	user, err := userService.VerifyUser(email, password)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +173,7 @@ func getUserAuthForCredentials(username, password string, userService oauth2.Use
 
 	return &auth.Auth{
 		UserID:        user.ID,
-		Username:      user.Username,
+		Username:      user.Email,
 		Roles:         user.Roles,
 		Organizations: user.Organizations,
 	}, nil
@@ -181,15 +182,15 @@ func getUserAuthForCredentials(username, password string, userService oauth2.Use
 func attemptFormLogin(ctx context.Context, scheme *FormLoginScheme, userService oauth2.UserService, rw http.ResponseWriter, req *http.Request) (context.Context, error) {
 	if req.Method == "POST" && req.URL.Path == scheme.PostURL {
 		// attempt login here
-		username := strings.TrimSpace(req.FormValue(scheme.UsernameField))
+		email := strings.TrimSpace(req.FormValue(scheme.EmailField))
 		password := strings.TrimSpace(req.FormValue(scheme.PasswordField))
-		if username == "" || password == "" {
+		if email == "" || password == "" {
 			return ctx, Unauthorized("Credentials required")
 		}
-		if err := validateCredentials(username, password); err != nil {
+		if err := validateCredentials(email, password); err != nil {
 			return ctx, BadRequest(err)
 		}
-		userAuth, err := getUserAuthForCredentials(username, password, userService)
+		userAuth, err := getUserAuthForCredentials(email, password, userService)
 		if err != nil {
 			return ctx, ServerError("Server Error", err)
 		}
@@ -202,9 +203,9 @@ func attemptFormLogin(ctx context.Context, scheme *FormLoginScheme, userService 
 	return ctx, nil
 }
 
-func validateCredentials(username, pass string) error {
-	if match, _ := regexp.MatchString("^([a-zA-Z0-9@]{4,30})$", username); !match {
-		return fmt.Errorf("you've entered invalid username")
+func validateCredentials(email, pass string) error {
+	if _, err := mail.ParseAddress(email); err != nil {
+		return fmt.Errorf("You have entered invalid email")
 	}
 	if len(pass) < 6 {
 		return fmt.Errorf("yuo've entered invalid password")

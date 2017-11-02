@@ -48,7 +48,7 @@ func TestAuthorizeOauth2ProviderFound(t *testing.T) {
 
 	authObj := auth.Auth{
 		UserID:   "test-user-001",
-		Username: "test-user",
+		Username: "test@example.com",
 		Roles:    []string{"user"},
 	}
 

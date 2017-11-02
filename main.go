@@ -96,7 +96,7 @@ func main() {
 		PostURL:       "/auth/check_credentials",
 		LoginURL:      "/auth/login",
 		ConfirmURL:    "/auth/authorize-client",
-		UsernameField: "username",
+		EmailField:    "email",
 		PasswordField: "password",
 		IgnoreURLs:    []string{"/auth/login", "/oauth2/token", "/auth/css/.*", "/auth/js/.*", ".*/favicon.ico"},
 	}, userService, sessionStore)
