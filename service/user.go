@@ -24,9 +24,9 @@ type UserServiceAPI struct {
 }
 
 // VerifyUser makes a call to the user microservice to verify the user credentials.
-func (u *UserServiceAPI) VerifyUser(username, password string) (*oauth2.User, error) {
+func (u *UserServiceAPI) VerifyUser(email, password string) (*oauth2.User, error) {
 	credentials := map[string]string{
-		"username": username,
+		"email":    email,
 		"password": password,
 	}
 	data, _ := json.Marshal(credentials)

@@ -176,8 +176,8 @@ type DummyUserService struct {
 	Users map[string]*MockUser
 }
 
-func (d *DummyUserService) VerifyUser(username, password string) (*oauth2.User, error) {
-	if user, ok := d.Users[username]; ok {
+func (d *DummyUserService) VerifyUser(email, password string) (*oauth2.User, error) {
+	if user, ok := d.Users[email]; ok {
 		if user.Password == password {
 			return &user.User, nil
 		}

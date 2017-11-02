@@ -18,11 +18,10 @@ func TestVerifyUser(t *testing.T) {
 	}
 
 	gock.New("http://example.com").Post("/user/find").JSON(map[string]string{
-		"username": "testuser",
+		"email":    "user@mail.com",
 		"password": "testpass",
 	}).Reply(200).JSON(map[string]interface{}{
 		"userId":        "user-001",
-		"username":      "testuser",
 		"email":         "user@mail.com",
 		"roles":         []string{"user", "admin"},
 		"organizations": []string{"org1", "org2"},
@@ -42,7 +41,7 @@ func TestVerifyUser(t *testing.T) {
 		},
 	}
 
-	user, err := userService.VerifyUser("testuser", "testpass")
+	user, err := userService.VerifyUser("user@mail.com", "testpass")
 	if err != nil {
 		t.Fatal(err)
 	}
