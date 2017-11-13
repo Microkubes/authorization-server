@@ -39,7 +39,7 @@ func (c *ClientServiceAPI) getURL(path string) string {
 
 // GetClient retrieves a client data from the clients (apps) microservice.
 func (c *ClientServiceAPI) GetClient(clientID string) (*oauth2.Client, error) {
-	req, err := NewSignedRequest("GET", c.getURL(fmt.Sprintf("app/%s", clientID)), nil, c.Signature)
+	req, err := NewSignedRequest("GET", c.getURL(fmt.Sprintf("%s", clientID)), nil, c.Signature)
 	if err != nil {
 		return nil, err
 	}
@@ -123,6 +123,9 @@ func (c *ClientServiceAPI) UpdateUserData(clientID, code, userID, userData strin
 	ca.UserData = userData
 	ca.UserID = userID
 	_, err = c.ClientAuthRepository.Save(ca)
+	if err != nil {
+		fmt.Println("Failed to save user data: ", err.Error())
+	}
 	return err
 }
 
@@ -164,7 +167,8 @@ func NewClientSignature(serverName string, securityConf config.Security, keyStor
 	claims := map[string]interface{}{
 		"userId":   "system",
 		"username": "system",
-		"roles":    []string{"system"},
+		"roles":    "system",
+		"scopes":   "api:read,api:write",
 		"iss":      serverName,
 		"sub":      "oauth2-auth-server",
 		"jti":      uuid.NewV4().String(),

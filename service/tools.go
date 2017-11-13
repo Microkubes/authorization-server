@@ -30,6 +30,7 @@ type Signature struct {
 // NewSignedRequest creates an HTTP request that is signed with the given Signature.
 // The request has its Authorization header populated with the generated JWT.
 func NewSignedRequest(method string, urlStr string, body io.Reader, signature Signature) (*http.Request, error) {
+	signature = *signature.New()
 	req, err := http.NewRequest(method, urlStr, body)
 	if err != nil {
 		return nil, err
@@ -78,12 +79,13 @@ func NewSystemSignature(serverName string, securityConf config.Security, keyStor
 	claims := map[string]interface{}{
 		"userId":   "system",
 		"username": "system",
-		"roles":    []string{"system"},
+		"roles":    "system",
+		"scopes":   "api:read,api:write",
 		"iss":      serverName,
 		"sub":      "oauth2-auth-server",
 		"jti":      uuid.NewV4().String(),
 		"nbf":      0,
-		"exp":      time.Now().Add(time.Duration(30 * time.Second)).Unix(),
+		"exp":      time.Now().Add(time.Duration(3000 * time.Second)).Unix(),
 		"iat":      time.Now().Unix(),
 	}
 	systemKey, err := keyStore.GetPrivateKeyByName("system")
@@ -95,4 +97,23 @@ func NewSystemSignature(serverName string, securityConf config.Security, keyStor
 		Key:           systemKey,
 		SigningMethod: securityConf.SigningMethod,
 	}, nil
+}
+
+// New creates new up-to-date signature.
+func (s *Signature) New() *Signature {
+	claims := map[string]interface{}{}
+
+	for claimName, claimValue := range s.Claims {
+		claims[claimName] = claimValue
+	}
+
+	claims["jti"] = uuid.NewV4().String()
+	claims["iat"] = time.Now().Unix()
+	claims["exp"] = time.Now().Add(time.Duration(30 * time.Second)).Unix()
+
+	return &Signature{
+		Claims:        claims,
+		Key:           s.Key,
+		SigningMethod: s.SigningMethod,
+	}
 }

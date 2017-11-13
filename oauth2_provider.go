@@ -45,10 +45,8 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 			Error: "invalid_request",
 		})
 	}
-
 	confirmation := security.AuthorizeClientData{}
 	c.SessionStore.GetAs("confirmation", &confirmation, ctx.Request)
-
 	if !confirmation.Confirmed {
 		confirmation.ClientID = ctx.ClientID
 		confirmation.AuthorizeRequest = fmt.Sprintf("%s?%s", ctx.Request.URL.Path, ctx.Request.URL.Query().Encode())
@@ -58,9 +56,9 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 		ctx.ResponseWriter.WriteHeader(302)
 		return nil
 	}
-
 	err := c.ProviderController.Authorize(ctx, ctx.ResponseWriter, ctx.Request)
 	if err != nil {
+		fmt.Println("Error in authorization: ", err.Error())
 		return err
 	}
 
@@ -75,6 +73,9 @@ func (c *Oauth2ProviderController) Authorize(ctx *app.AuthorizeOauth2ProviderCon
 		return err
 	}
 	err = c.ClientService.UpdateUserData(clientID, code, authObj.UserID, string(userData))
+	if err != nil {
+		fmt.Println("Error while updating client data:", err.Error())
+	}
 	return err
 }
 

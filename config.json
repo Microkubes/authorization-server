@@ -14,7 +14,7 @@
     "paths": [ "/oauth2", "/auth" ],
     "virtual_host": "server.auth.jormugandr.org",
     "weight": 10,
-    "slots": 5
+    "slots": 10
   },
   "services": {
     "userServiceURL": "http://kong:8000/users",
