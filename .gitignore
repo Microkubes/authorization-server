@@ -19,3 +19,6 @@ ssh-keys
 saml-keys
 .keys
 .ssh-keys
+
+# Go Dependency Management
+vendor
