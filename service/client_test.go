@@ -3,7 +3,6 @@ package service
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -143,19 +142,10 @@ func TestVerifyClientCredentials(t *testing.T) {
 
 	gock.New("http://example.com:8080").
 		Post("/apps/verify").
-		SetMatcher(NewFormMatcher(func(req *http.Request, ereq *gock.Request) (bool, error) {
-			username := req.PostFormValue("client_id")
-			password := req.PostFormValue("client_secret")
-			fmt.Println("Credentials:", username, password)
-
-			if username == "" || password == "" {
-				return false, fmt.Errorf("Missing credentials")
-			}
-			if username == "client-001" && password == "secret" {
-				return true, nil
-			}
-			return false, fmt.Errorf("Invalid credentials")
-		})).
+		JSON(map[string]interface{}{
+			"id":     "client-001",
+			"secret": "secret",
+		}).
 		Reply(200).
 		JSON(map[string]interface{}{
 			"id":          "client-001",

@@ -1,11 +1,10 @@
 package service
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/JormungandrK/authorization-server/config"
@@ -60,15 +59,21 @@ func (c *ClientServiceAPI) GetClient(clientID string) (*oauth2.Client, error) {
 
 //VerifyClientCredentials verifies a client (app) for the supplied credentials on the clients (apps) microservice.
 func (c *ClientServiceAPI) VerifyClientCredentials(clientID, clientSecret string) (*oauth2.Client, error) {
-	form := url.Values{}
-	form.Add("client_id", clientID)
-	form.Add("client_secret", clientSecret)
+	payload := map[string]string{
+		"id":     clientID,
+		"secret": clientSecret,
+	}
 
-	req, err := NewSignedRequest("POST", c.getURL("verify"), strings.NewReader(form.Encode()), c.Signature)
+	payloadData, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	req, err := NewSignedRequest("POST", c.getURL("verify"), bytes.NewReader(payloadData), c.Signature)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := ExecRequest("microservice-apps", req, c.Client)
 	if err != nil {
