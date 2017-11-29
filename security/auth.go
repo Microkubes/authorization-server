@@ -167,6 +167,9 @@ func getUserAuthForCredentials(email, password string, userService oauth2.UserSe
 	if user == nil {
 		return nil, nil
 	}
+	if !user.Active {
+		return nil, fmt.Errorf("account-not-activated")
+	}
 
 	return &auth.Auth{
 		UserID:        user.ID,
@@ -189,11 +192,15 @@ func attemptFormLogin(ctx context.Context, scheme *FormLoginScheme, userService 
 		}
 		userAuth, err := getUserAuthForCredentials(email, password, userService)
 		if err != nil {
+			if err.Error() == "account-not-activated" {
+				return ctx, BadRequest(err)
+			}
 			return ctx, ServerError("Server Error", err)
 		}
 		if userAuth == nil {
 			return ctx, Forbidden("Invalid credentials")
 		}
+
 		ctx = auth.SetAuth(ctx, userAuth)
 		return ctx, nil
 	}
