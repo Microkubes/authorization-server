@@ -76,6 +76,10 @@ func ExecRequest(action string, req *http.Request, client *http.Client, ignoreCo
 // NewSystemSignature generates a common Signature from a given configuration. This Signature is
 // issued with system authentication and used for communication with other microservices on the platform.
 func NewSystemSignature(serverName string, securityConf config.Security, keyStore tools.KeyStore) (*Signature, error) {
+	randUUD, err := uuid.NewV4()
+	if err != nil {
+		return nil, err
+	}
 	claims := map[string]interface{}{
 		"userId":   "system",
 		"username": "system",
@@ -83,7 +87,7 @@ func NewSystemSignature(serverName string, securityConf config.Security, keyStor
 		"scopes":   "api:read,api:write",
 		"iss":      serverName,
 		"sub":      "oauth2-auth-server",
-		"jti":      uuid.NewV4().String(),
+		"jti":      randUUD.String(),
 		"nbf":      0,
 		"exp":      time.Now().Add(time.Duration(3000 * time.Second)).Unix(),
 		"iat":      time.Now().Unix(),
@@ -107,7 +111,9 @@ func (s *Signature) New() *Signature {
 		claims[claimName] = claimValue
 	}
 
-	claims["jti"] = uuid.NewV4().String()
+	randUUID, _ := uuid.NewV4()
+
+	claims["jti"] = randUUID.String()
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(time.Duration(30 * time.Second)).Unix()
 

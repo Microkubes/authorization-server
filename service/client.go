@@ -169,6 +169,10 @@ func NewClientService(serverConfig *config.ServerConfig, client *http.Client, ke
 
 // NewClientSignature builds new Signature containing the data and claims for signing the JWT tokens.
 func NewClientSignature(serverName string, securityConf config.Security, keyStore tools.KeyStore) (*Signature, error) {
+	randUUID, err := uuid.NewV4()
+	if err != nil {
+		return nil, err
+	}
 	claims := map[string]interface{}{
 		"userId":   "system",
 		"username": "system",
@@ -176,7 +180,7 @@ func NewClientSignature(serverName string, securityConf config.Security, keyStor
 		"scopes":   "api:read,api:write",
 		"iss":      serverName,
 		"sub":      "oauth2-auth-server",
-		"jti":      uuid.NewV4().String(),
+		"jti":      randUUID.String(),
 		"nbf":      0,
 		"exp":      time.Now().Add(time.Duration(30 * time.Second)).Unix(),
 		"iat":      time.Now().Unix(),
