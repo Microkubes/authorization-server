@@ -176,6 +176,7 @@ func getUserAuthForCredentials(email, password string, userService oauth2.UserSe
 		Username:      user.Email,
 		Roles:         user.Roles,
 		Organizations: user.Organizations,
+		Namespaces:    user.Namespaces,
 	}, nil
 }
 
