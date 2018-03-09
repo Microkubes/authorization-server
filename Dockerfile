@@ -5,7 +5,7 @@ COPY . /go/src/github.com/JormungandrK/authorization-server
 RUN go install github.com/JormungandrK/authorization-server
 
 ### Main
-FROM alpine:3.6
+FROM alpine:3.7
 
 COPY --from=build /go/bin/authorization-server /usr/local/bin/authorization-server
 COPY public /public
