@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/microservice-security/oauth2"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )

@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/authorization-server/config"
+	"github.com/Microkubes/microservice-security/oauth2"
 	gock "gopkg.in/h2non/gock.v1"
 )
 

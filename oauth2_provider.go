@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/JormungandrK/authorization-server/app"
-	"github.com/JormungandrK/authorization-server/security"
-	"github.com/JormungandrK/microservice-security/auth"
-	oa2 "github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/authorization-server/app"
+	"github.com/Microkubes/authorization-server/security"
+	"github.com/Microkubes/microservice-security/auth"
+	oa2 "github.com/Microkubes/microservice-security/oauth2"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/oauth2"
 )

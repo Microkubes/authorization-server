@@ -1,4 +1,4 @@
-//go:generate goagen bootstrap -d github.com/JormungandrK/authorization-server/design
+//go:generate goagen bootstrap -d github.com/Microkubes/authorization-server/design
 
 package main
 
@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/JormungandrK/authorization-server/app"
-	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/authorization-server/security"
-	svc "github.com/JormungandrK/authorization-server/service"
-	"github.com/JormungandrK/microservice-security/oauth2"
-	"github.com/JormungandrK/microservice-security/tools"
-	"github.com/JormungandrK/microservice-tools/gateway"
+	"github.com/Microkubes/authorization-server/app"
+	"github.com/Microkubes/authorization-server/config"
+	"github.com/Microkubes/authorization-server/security"
+	svc "github.com/Microkubes/authorization-server/service"
+	"github.com/Microkubes/microservice-security/oauth2"
+	"github.com/Microkubes/microservice-security/tools"
+	"github.com/Microkubes/microservice-tools/gateway"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	goaoauth2 "github.com/goadesign/oauth2"

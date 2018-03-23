@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/microservice-security/oauth2"
 )
 
 type DummyClientService struct {

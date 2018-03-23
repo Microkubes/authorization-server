@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/microservice-security/oauth2"
 )
 
 type DummyTokenRepository struct {

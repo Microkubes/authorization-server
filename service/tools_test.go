@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/JormungandrK/authorization-server/config"
+	"github.com/Microkubes/authorization-server/config"
 
 	gock "gopkg.in/h2non/gock.v1"
 )

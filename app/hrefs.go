@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/JormungandrK/authorization-server/design
-// --out=$(GOPATH)/src/github.com/JormungandrK/authorization-server
+// --design=github.com/Microkubes/authorization-server/design
+// --out=$(GOPATH)/src/github.com/Microkubes/authorization-server
 // --version=v1.2.0-dirty
 
 package app

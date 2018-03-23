@@ -1,8 +1,8 @@
 ### Multi-stage build
 FROM jormungandrk/goa-build as build
 
-COPY . /go/src/github.com/JormungandrK/authorization-server
-RUN go install github.com/JormungandrK/authorization-server
+COPY . /go/src/github.com/Microkubes/authorization-server
+RUN go install github.com/Microkubes/authorization-server
 
 ### Main
 FROM alpine:3.7

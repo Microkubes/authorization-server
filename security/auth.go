@@ -9,8 +9,8 @@ import (
 
 	"context"
 
-	"github.com/JormungandrK/microservice-security/auth"
-	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/microservice-security/auth"
+	"github.com/Microkubes/microservice-security/oauth2"
 	"github.com/goadesign/goa"
 )
 

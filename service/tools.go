@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/microservice-security/jwt"
-	"github.com/JormungandrK/microservice-security/tools"
+	"github.com/Microkubes/authorization-server/config"
+	"github.com/Microkubes/microservice-security/jwt"
+	"github.com/Microkubes/microservice-security/tools"
 	"github.com/afex/hystrix-go/hystrix"
 	uuid "github.com/satori/go.uuid"
 )

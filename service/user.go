@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/microservice-security/oauth2"
-	"github.com/JormungandrK/microservice-security/tools"
+	"github.com/Microkubes/authorization-server/config"
+	"github.com/Microkubes/microservice-security/oauth2"
+	"github.com/Microkubes/microservice-security/tools"
 )
 
 // UserServiceAPI holds the data for implementation of oauth2.UserService.

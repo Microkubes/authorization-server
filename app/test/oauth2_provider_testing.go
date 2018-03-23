@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/JormungandrK/authorization-server/design
-// --out=$(GOPATH)/src/github.com/JormungandrK/authorization-server
+// --design=github.com/Microkubes/authorization-server/design
+// --out=$(GOPATH)/src/github.com/Microkubes/authorization-server
 // --version=v1.2.0-dirty
 
 package test
@@ -20,7 +20,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/JormungandrK/authorization-server/app"
+	"github.com/Microkubes/authorization-server/app"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/goatest"
 	goaoauth2app "github.com/goadesign/oauth2/app"

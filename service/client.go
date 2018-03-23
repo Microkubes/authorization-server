@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/authorization-server/db"
-	"github.com/JormungandrK/microservice-security/oauth2"
-	"github.com/JormungandrK/microservice-security/tools"
+	"github.com/Microkubes/authorization-server/config"
+	"github.com/Microkubes/authorization-server/db"
+	"github.com/Microkubes/microservice-security/oauth2"
+	"github.com/Microkubes/microservice-security/tools"
 	uuid "github.com/satori/go.uuid"
 )
 

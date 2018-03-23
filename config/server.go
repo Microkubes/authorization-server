@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/JormungandrK/microservice-tools/gateway"
+	"github.com/Microkubes/microservice-tools/gateway"
 )
 
 // ServerConfig holds the main configuration for the Authorization Server

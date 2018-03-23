@@ -4,8 +4,8 @@ import (
 	"html/template"
 	"io/ioutil"
 
-	"github.com/JormungandrK/authorization-server/app"
-	"github.com/JormungandrK/authorization-server/security"
+	"github.com/Microkubes/authorization-server/app"
+	"github.com/Microkubes/authorization-server/security"
 	"github.com/goadesign/goa"
 )
 

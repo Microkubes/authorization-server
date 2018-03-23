@@ -3,9 +3,9 @@ package service
 import (
 	"time"
 
-	"github.com/JormungandrK/authorization-server/config"
-	"github.com/JormungandrK/authorization-server/db"
-	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/authorization-server/config"
+	"github.com/Microkubes/authorization-server/db"
+	"github.com/Microkubes/microservice-security/oauth2"
 )
 
 // OAuth2TokenService hold the data for implementation of oauth2.TokenService.

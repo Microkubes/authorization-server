@@ -18,8 +18,8 @@ before_install:
   - go get -u github.com/axw/gocov/gocov
   - go get -u github.com/AlekSi/gocov-xml
   - go get -u gopkg.in/h2non/gock.v1
-  - go get -u github.com/JormungandrK/microservice-tools
-  - go get -u github.com/JormungandrK/microservice-security/...
+  - go get -u github.com/Microkubes/microservice-tools
+  - go get -u github.com/Microkubes/microservice-security/...
   - go get -u github.com/goadesign/goa/...
   - go get -u github.com/goadesign/oauth2
   - go get -u gopkg.in/mgo.v2
@@ -34,7 +34,7 @@ before_script:
   - chmod +x ./cc-test-reporter
 
 script:
-  - gocov test github.com/JormungandrK/authorization-server/... | gocov-xml > coverage.xml && ./cc-test-reporter format-coverage -t cobertura -o coverage.json coverage.xml
+  - gocov test github.com/Microkubes/authorization-server/... | gocov-xml > coverage.xml && ./cc-test-reporter format-coverage -t cobertura -o coverage.json coverage.xml
   - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRIGGER" != "yes" ]; then
     ./cc-test-reporter upload-coverage -i coverage.json;
     fi

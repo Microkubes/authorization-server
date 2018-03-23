@@ -8,10 +8,10 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/JormungandrK/authorization-server/app"
-	"github.com/JormungandrK/authorization-server/app/test"
-	"github.com/JormungandrK/microservice-security/auth"
-	"github.com/JormungandrK/microservice-security/oauth2"
+	"github.com/Microkubes/authorization-server/app"
+	"github.com/Microkubes/authorization-server/app/test"
+	"github.com/Microkubes/microservice-security/auth"
+	"github.com/Microkubes/microservice-security/oauth2"
 	"github.com/goadesign/goa"
 	oa2 "github.com/goadesign/oauth2"
 )

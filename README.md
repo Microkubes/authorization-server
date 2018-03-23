@@ -1,7 +1,7 @@
 OAuth2 Authorization Server
 ===========================
 
-[![Build](https://travis-ci.com/JormungandrK/authorization-server.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/JormungandrK/authorization-server)
+[![Build](https://travis-ci.com/Microkubes/authorization-server.svg?token=UB5yzsLHNSbtjSYrGbWf&branch=master)](https://travis-ci.com/Microkubes/authorization-server)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/1a6769b9294e060ecd33/test_coverage)](https://codeclimate.com/repos/59b900fc7b2913029c001215/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/1a6769b9294e060ecd33/maintainability)](https://codeclimate.com/repos/59b900fc7b2913029c001215/maintainability)
 
@@ -12,7 +12,7 @@ OAuth2 Authorization Server as a separate micro-service.
 
 You can install the Auth Server via go:
 ```bash
-go get -u github.com/JormungandrK/authorization-server
+go get -u github.com/Microkubes/authorization-server
 ```
 
 ## Building
@@ -21,7 +21,7 @@ To build the server, follow these steps:
 
 1. Get the source code from github:
 ```bash
-git clone https://github.com/JormungandrK/authorization-server.git
+git clone https://github.com/Microkubes/authorization-server.git
 cd authorization-server
 ```
 
