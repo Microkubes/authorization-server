@@ -1,16 +1,26 @@
 ### Multi-stage build
-FROM jormungandrk/goa-build as build
+FROM golang:1.10-alpine3.7 as build
+
+RUN apk --no-cache add git curl openssh
+
+RUN go get -u -v github.com/goadesign/goa/... && \
+    go get -u -v github.com/asaskevich/govalidator && \
+    go get -u -v github.com/goadesign/oauth2 && \
+    go get -u -v github.com/gorilla/sessions && \
+    go get -u -v github.com/gorilla/securecookie && \
+    go get -u -v github.com/Microkubes/microservice-security/... && \
+    go get -u -v github.com/Microkubes/microservice-tools/...
 
 COPY . /go/src/github.com/Microkubes/authorization-server
-RUN go install github.com/Microkubes/authorization-server
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install github.com/Microkubes/authorization-server
 
 ### Main
-FROM alpine:3.7
+FROM scratch
 
-COPY --from=build /go/bin/authorization-server /usr/local/bin/authorization-server
+COPY --from=build /go/bin/authorization-server /authorization-server
 COPY public /public
 EXPOSE 8080
 
 ENV API_GATEWAY_URL="http://localhost:8001"
 
-CMD ["/usr/local/bin/authorization-server"]
+CMD ["/authorization-server"]
