@@ -12,15 +12,18 @@ RUN go get -u -v github.com/goadesign/goa/... && \
     go get -u -v github.com/Microkubes/microservice-tools/...
 
 COPY . /go/src/github.com/Microkubes/authorization-server
+
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install github.com/Microkubes/authorization-server
 
 ### Main
 FROM scratch
 
+ENV API_GATEWAY_URL="http://localhost:8001"
+
+COPY --from=build /go/src/github.com/Microkubes/authorization-server/config.json /config.json
 COPY --from=build /go/bin/authorization-server /authorization-server
 COPY public /public
-EXPOSE 8080
 
-ENV API_GATEWAY_URL="http://localhost:8001"
+EXPOSE 8080
 
 CMD ["/authorization-server"]
