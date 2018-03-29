@@ -20,17 +20,11 @@
     "userServiceURL": "http://kong:8000/users",
     "appsServiceURL": "http://kong:8000/apps"
   },
-  "database":{
-    "dbName": "mongodb",
-    "dbInfo": {
-      "credentials": "/full/path/to/aws/credentials",
-      "endpoint": "http://localhost:9000",
-      "awsRegion": "us-east-1",
-      "host": "mongo:27017",
-      "database": "oauth2",
-      "user": "restapi",
-      "pass": "restapi"
-    }
+  "database": {
+    "host": "mongo:27017",
+    "database": "oauth2",
+    "user": "authserver",
+    "pass": "authserver"
   },
   "session": {
     "name": "OAuth2Server",
