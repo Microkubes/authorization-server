@@ -14,6 +14,8 @@ import (
 	"github.com/Microkubes/microservice-security/oauth2"
 	"github.com/Microkubes/microservice-security/tools"
 	"github.com/Microkubes/microservice-tools/gateway"
+	"github.com/Microkubes/microservice-tools/utils/healthcheck"
+	"github.com/Microkubes/microservice-tools/utils/version"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	goaoauth2 "github.com/goadesign/oauth2"
@@ -98,8 +100,8 @@ func main() {
 		ConfirmURL:    "/auth/authorize-client",
 		EmailField:    "email",
 		PasswordField: "password",
-		IgnoreURLs:    []string{"/auth/login", "/oauth2/token", "/auth/css/.*", "/auth/js/.*", ".*/favicon.ico"},
-	}, userService, sessionStore)
+		IgnoreURLs:    []string{"/auth/login", "/oauth2/token", "/auth/css/.*", "/auth/js/.*", ".*/favicon.ico", "/healthcheck", "/version"},
+	}, nil, nil)
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
@@ -108,6 +110,10 @@ func main() {
 	service.Use(middleware.Recover())
 	service.Use(security.NewStoreOAuth2ParamsMiddleware(sessionStore, oauth2Scheme.AuthorizationURL))
 	service.Use(formLoginMiddleware)
+
+	service.Use(healthcheck.NewCheckMiddleware("/healthcheck"))
+
+	service.Use(version.NewVersionMiddleware(serverConfig.Version, "/version"))
 
 	oauth2ClientAuth := goaoauth2.NewOAuth2ClientBasicAuthMiddleware(provider)
 	app.UseOauth2ClientBasicAuthMiddleware(service, oauth2ClientAuth)
