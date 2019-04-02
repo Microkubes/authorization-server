@@ -101,7 +101,7 @@ func main() {
 		EmailField:    "email",
 		PasswordField: "password",
 		IgnoreURLs:    []string{"/auth/login", "/oauth2/token", "/auth/css/.*", "/auth/js/.*", ".*/favicon.ico", "/healthcheck", "/version"},
-	}, nil, nil)
+	}, userService, sessionStore)
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
