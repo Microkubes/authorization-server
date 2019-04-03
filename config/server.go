@@ -41,6 +41,9 @@ type ServerConfig struct {
 
 	// RefreshTokenLength is the length of the random generated refresh token string.
 	RefreshTokenLength int `json:"refreshTokenLength,omitempty"`
+
+	//Version is version of the service
+	Version string `json:"version"`
 }
 
 // Security holds the security configuration.

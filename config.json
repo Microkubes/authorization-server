@@ -1,5 +1,6 @@
 {
   "serverName": "Jormungandr Authorization Server",
+  "version": "v1.0.0-beta",
   "security": {
     "keys": {
       "default": "/run/secrets/default",
