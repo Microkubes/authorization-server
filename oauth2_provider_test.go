@@ -12,8 +12,8 @@ import (
 	"github.com/Microkubes/authorization-server/app/test"
 	"github.com/Microkubes/microservice-security/auth"
 	"github.com/Microkubes/microservice-security/oauth2"
-	"github.com/goadesign/goa"
-	oa2 "github.com/goadesign/oauth2"
+	"github.com/keitaroinc/goa"
+	oa2 "github.com/keitaroinc/oauth2"
 )
 
 func TestAuthorizeOauth2ProviderBadRequest(t *testing.T) {

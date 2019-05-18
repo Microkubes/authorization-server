@@ -6,7 +6,7 @@ import (
 
 	"github.com/Microkubes/authorization-server/app"
 	"github.com/Microkubes/authorization-server/security"
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 )
 
 // LoginController implements the login resource.

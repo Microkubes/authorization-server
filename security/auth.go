@@ -11,7 +11,7 @@ import (
 
 	"github.com/Microkubes/microservice-security/auth"
 	"github.com/Microkubes/microservice-security/oauth2"
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 )
 
 // FormLoginScheme holds the configuration for a Form-based user login and authentication.

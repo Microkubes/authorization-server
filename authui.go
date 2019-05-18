@@ -10,7 +10,7 @@ import (
 	"github.com/Microkubes/authorization-server/security"
 	"github.com/Microkubes/microservice-security/auth"
 	"github.com/Microkubes/microservice-security/oauth2"
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 )
 
 // AuthUIController implements the authUI resource.

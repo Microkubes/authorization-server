@@ -16,9 +16,9 @@ import (
 	"github.com/Microkubes/microservice-tools/gateway"
 	"github.com/Microkubes/microservice-tools/utils/healthcheck"
 	"github.com/Microkubes/microservice-tools/utils/version"
-	"github.com/goadesign/goa"
-	"github.com/goadesign/goa/middleware"
-	goaoauth2 "github.com/goadesign/oauth2"
+	"github.com/keitaroinc/goa"
+	"github.com/keitaroinc/goa/middleware"
+	goaoauth2 "github.com/keitaroinc/oauth2"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 )

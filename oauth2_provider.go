@@ -9,8 +9,8 @@ import (
 	"github.com/Microkubes/authorization-server/security"
 	"github.com/Microkubes/microservice-security/auth"
 	oa2 "github.com/Microkubes/microservice-security/oauth2"
-	"github.com/goadesign/goa"
-	"github.com/goadesign/oauth2"
+	"github.com/keitaroinc/goa"
+	"github.com/keitaroinc/oauth2"
 )
 
 // Oauth2ProviderController implements the oauth2_provider resource.
