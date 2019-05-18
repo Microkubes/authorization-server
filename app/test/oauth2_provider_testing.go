@@ -21,9 +21,9 @@ import (
 	"net/url"
 
 	"github.com/Microkubes/authorization-server/app"
-	"github.com/goadesign/goa"
-	"github.com/goadesign/goa/goatest"
-	goaoauth2app "github.com/goadesign/oauth2/app"
+	"github.com/keitaroinc/goa"
+	"github.com/keitaroinc/goa/goatest"
+	goaoauth2app "github.com/keitaroinc/oauth2/app"
 )
 
 // AuthorizeOauth2ProviderBadRequest runs the method Authorize of the given controller with the given parameters.

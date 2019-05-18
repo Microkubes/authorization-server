@@ -11,7 +11,7 @@
 package app
 
 import (
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 )
 
 // Payload sent by client to obtain refresh and access token or to refresh an access token.

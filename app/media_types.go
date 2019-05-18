@@ -11,7 +11,7 @@
 package app
 
 import (
-	"github.com/goadesign/goa"
+	"github.com/keitaroinc/goa"
 )
 
 // OAuth2 error response, see https://tools.ietf.org/html/rfc6749#section-5.2 (default view)
