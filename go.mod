@@ -3,7 +3,7 @@ module github.com/Microkubes/authorization-server
 go 1.13
 
 require (
-	github.com/Microkubes/microservice-security v1.1.0
+	github.com/Microkubes/microservice-security v1.2.1
 	github.com/Microkubes/microservice-tools v1.1.0
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/gorilla/securecookie v1.1.1
