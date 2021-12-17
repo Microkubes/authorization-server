@@ -13,14 +13,13 @@ import (
 	svc "github.com/Microkubes/authorization-server/service"
 	"github.com/Microkubes/microservice-security/oauth2"
 	"github.com/Microkubes/microservice-security/tools"
-	"github.com/Microkubes/microservice-tools/gateway"
 	"github.com/Microkubes/microservice-tools/utils/healthcheck"
 	"github.com/Microkubes/microservice-tools/utils/version"
+	"github.com/gorilla/securecookie"
+	"github.com/gorilla/sessions"
 	"github.com/keitaroinc/goa"
 	"github.com/keitaroinc/goa/middleware"
 	goaoauth2 "github.com/keitaroinc/oauth2"
-	"github.com/gorilla/securecookie"
-	"github.com/gorilla/sessions"
 )
 
 func main() {
@@ -78,19 +77,6 @@ func main() {
 		AccessTokenValidityPeriod: serverConfig.AccessTokenTTL,
 		ProviderName:              serverConfig.ServerName,
 	}
-
-	gatewayURL := os.Getenv("API_GATEWAY_URL")
-	if gatewayURL == "" {
-		gatewayURL = "http://kong:8001"
-	}
-
-	registration := gateway.NewKongGateway(gatewayURL, &http.Client{}, &serverConfig.MicroserviceConfig)
-	err = registration.SelfRegister()
-	if err != nil {
-		panic(err)
-	}
-
-	defer registration.Unregister()
 
 	oauth2Scheme := app.NewOAuth2Security()
 

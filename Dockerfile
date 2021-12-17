@@ -11,8 +11,6 @@ RUN cd /go/src/github.com/Microkubes/authorization-server && \
 ### Main
 FROM alpine:3.10
 
-ENV API_GATEWAY_URL="http://localhost:8001"
-
 COPY --from=build /go/src/github.com/Microkubes/authorization-server/config.json /config.json
 COPY --from=build /go/bin/authorization-server /authorization-server
 COPY public /public
